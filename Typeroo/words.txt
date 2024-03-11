@@ -1,5 +1,3 @@
-Here's the list with duplicates removed and the first letter of each word capitalized:
-
 Apple
 Banana
 Computer
@@ -36,7 +34,7 @@ Moonlight
 Nightingale
 Ocean
 Parrot
-Quicksand
+Quick
 Seashell
 Telescope
 Unicorn
@@ -135,9 +133,6 @@ Otter
 Snowflake
 Tiger
 Underwater
-Ferrari
-Aprilla
-Ducatti
 Trojan Horse
 Method
 Virus
@@ -195,7 +190,6 @@ Drive
 Kingston
 Samsung
 Hanabishi
-Cfmoto
 Engine
 Pistons
 Winglet
@@ -210,13 +204,10 @@ Apex
 Rules
 Survival
 Keyboard
-Realme
 Logitech
 Ninja
 Katana
 Cyborg
-Leomord
-Thamuz
 Mirror
 Webcam
 Browser
@@ -226,17 +217,12 @@ Basket
 Duck
 Baseball
 Coffee
-Kiffy
 Helmet
 Spyder
 Suzuki
 Yamaha
 Sniper
 Aerox
-Nmax
-Raider
-Click
-Airblade
 Winner
 Loser
 Adventure
@@ -250,10 +236,6 @@ Legends
 Bang
 League
 Anubis
-Kimmy
-Martis
-Bane
-Piatos
 Magic
 Mall
 Motorcycle
@@ -341,7 +323,7 @@ Case
 Glue
 White
 Black
-Vissual
+Visual
 Studio
 Code
 Eclipse 
@@ -357,7 +339,7 @@ Reflection
 Maple
 Childhood
 Photo
-Recive
+Receive
 Set
 Spike
 Networks

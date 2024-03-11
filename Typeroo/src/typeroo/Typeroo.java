@@ -33,6 +33,7 @@ public class Typeroo extends javax.swing.JFrame {
     int score = 1;
     int time = 15;
     int lives = 3;
+    int hints = 4;
     int index = -1;
     private JLabel timerLabel;
     private Timer timer;
@@ -67,6 +68,7 @@ public class Typeroo extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.INFORMATION_MESSAGE);
                 lives--;
                 displayHUD();
+                displayWords();
                 
                 if (lives > 0) {
                     countdown = 15;
@@ -95,15 +97,19 @@ public class Typeroo extends javax.swing.JFrame {
         }else{
             Random random = new Random();
             randomWord = words[random.nextInt(words.length)];
-            
-            int pos1 = (int) (Math.random() * randomWord.length() );
-            int pos2 = (int) (Math.random() * randomWord.length() );
 
+            int pos = random.nextInt(randomWord.length());
             StringBuilder newText = new StringBuilder(randomWord);
-            
-            newText.setCharAt(pos1, '_');
-            
-            newText.setCharAt(pos2, '_');
+
+            if (randomWord.length() > 5) {
+                int pos1 = random.nextInt(randomWord.length());
+                int pos2 = random.nextInt(randomWord.length());
+                
+                newText.replace(pos1, pos1 + 1, " _ ");
+                newText.replace(pos2, pos2 + 1, " _ ");
+            } else {
+                newText.replace(pos, pos + 1, " _ ");
+            }
             
 
             jLabel21.setText(newText.toString());
@@ -113,13 +119,17 @@ public class Typeroo extends javax.swing.JFrame {
     //Display if user correctly guessed the word
     public void checkWords(){
         if (jTextField_Guess.getText().toLowerCase().equals(randomWord)) {
+            timer.stop();
             JOptionPane.showMessageDialog(null, "Correct!!!");
             countdown = 15;
             score++;
+            timer.start();
         }else{
+            timer.stop();
             JOptionPane.showMessageDialog(null, "Incorrect!!!");
             countdown = 15;
             lives--;
+            timer.start();
             if (lives == 0){
                 jDialog1.setVisible(true);
                 jFrame2.setVisible(false);
@@ -178,7 +188,9 @@ public class Typeroo extends javax.swing.JFrame {
         label_score = new javax.swing.JLabel();
         label_lives = new javax.swing.JLabel();
         label_timer = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
         jLabel21 = new javax.swing.JLabel();
+        hintButton = new javax.swing.JButton();
         jDialog1 = new javax.swing.JDialog();
         jPanel2 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
@@ -444,8 +456,11 @@ public class Typeroo extends javax.swing.JFrame {
             }
         });
 
+        jButton_submit.setBackground(new java.awt.Color(0, 153, 255));
         jButton_submit.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jButton_submit.setForeground(new java.awt.Color(255, 255, 255));
         jButton_submit.setText("Enter");
+        jButton_submit.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jButton_submit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton_submitActionPerformed(evt);
@@ -474,23 +489,44 @@ public class Typeroo extends javax.swing.JFrame {
         label_timer.setForeground(new java.awt.Color(255, 255, 255));
         label_timer.setText("15");
 
-        jLabel21.setBackground(new java.awt.Color(153, 153, 153));
+        jScrollPane1.setBackground(new java.awt.Color(0, 0, 204));
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jScrollPane1.setForeground(new java.awt.Color(0, 153, 255));
+
+        jLabel21.setBackground(new java.awt.Color(204, 204, 204));
         jLabel21.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
         jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel21.setText("W O R D");
         jLabel21.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jLabel21.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jScrollPane1.setViewportView(jLabel21);
+
+        hintButton.setBackground(new java.awt.Color(102, 102, 255));
+        hintButton.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        hintButton.setForeground(new java.awt.Color(255, 255, 255));
+        hintButton.setText("Hint");
+        hintButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, java.awt.Color.lightGray, java.awt.Color.white, java.awt.Color.lightGray, java.awt.Color.gray));
+        hintButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hintButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGap(290, 290, 290)
+                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(353, 353, 353))
+            .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(38, 38, 38)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addComponent(jButton5)
-                        .addGap(0, 688, Short.MAX_VALUE))
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel9Layout.createSequentialGroup()
@@ -510,20 +546,15 @@ public class Typeroo extends javax.swing.JFrame {
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(label_lives)))
-                        .addGap(12, 12, 12))))
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(12, 24, Short.MAX_VALUE))
                     .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGap(345, 345, 345)
-                        .addComponent(jButton_submit))
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGap(278, 278, 278)
-                        .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(329, 329, 329)
-                .addComponent(jLabel21)
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(114, 114, 114)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jButton5))
+                        .addGap(0, 0, Short.MAX_VALUE))))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -543,13 +574,15 @@ public class Typeroo extends javax.swing.JFrame {
                     .addComponent(label_score)
                     .addComponent(label_lives)
                     .addComponent(label_timer))
-                .addGap(66, 66, 66)
-                .addComponent(jLabel21)
-                .addGap(53, 53, 53)
-                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(41, 41, 41)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hintButton))
                 .addGap(33, 33, 33)
-                .addComponent(jButton_submit)
-                .addContainerGap(230, Short.MAX_VALUE))
+                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(42, 42, 42)
+                .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(198, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
@@ -765,18 +798,18 @@ public class Typeroo extends javax.swing.JFrame {
                         .addComponent(exitPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(17, 17, 17))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(257, 257, 257))
+                        .addComponent(jLabel2)
+                        .addGap(299, 299, 299))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel6)
-                            .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                                 .addComponent(jLabel7)
-                                .addGap(9, 9, 9)))
-                        .addGap(211, 211, 211))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(299, 299, 299))))
+                                .addGap(9, 9, 9))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addGap(88, 88, 88)))
+                        .addGap(200, 200, 200))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -787,15 +820,15 @@ public class Typeroo extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
                 .addComponent(jButton2)
-                .addGap(28, 28, 28)
+                .addGap(50, 50, 50)
                 .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(34, 34, 34)
+                .addGap(42, 42, 42)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
                 .addGap(31, 31, 31)
                 .addComponent(jButton1)
-                .addGap(222, 222, 222))
+                .addGap(192, 192, 192))
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -834,6 +867,7 @@ public class Typeroo extends javax.swing.JFrame {
         score = 0;
         index = 0;
         lives = 3;
+        hints = 4;
         timer.start();
         displayHUD();
         displayWords();
@@ -896,6 +930,7 @@ public class Typeroo extends javax.swing.JFrame {
         jDialog1.setVisible(false);
         jButton1ActionPerformed(null);
         countdown = 15;
+        hints = 4;
         label_timer.setText(Integer.toString(countdown));
         timer.start();
         displayHUD();
@@ -905,6 +940,18 @@ public class Typeroo extends javax.swing.JFrame {
         // To Close
         System.exit(0);
     }//GEN-LAST:event_exitPanel1MouseClicked
+
+    private void hintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hintButtonActionPerformed
+        timer.stop();
+        if (hints > 0) {
+        hints--;
+        JOptionPane.showMessageDialog(null, "The word is " + randomWord + "\nYour hints are only: " + hints);
+        }
+        if (hints == 0) {
+            JOptionPane.showMessageDialog(null, "All of your hints are used!!!");
+        }
+        timer.start();
+    }//GEN-LAST:event_hintButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -967,6 +1014,7 @@ public class Typeroo extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel exitPanel;
     private javax.swing.JLabel exitPanel1;
+    private javax.swing.JButton hintButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton4;
@@ -1008,6 +1056,7 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField_Guess;
     private javax.swing.JLabel label_lives;
     private javax.swing.JLabel label_score;
