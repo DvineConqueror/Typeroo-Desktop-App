@@ -241,7 +241,7 @@ Mall
 Motorcycle
 City
 Wheel
-Tech
+Technology
 Connect
 Penguin
 Trap

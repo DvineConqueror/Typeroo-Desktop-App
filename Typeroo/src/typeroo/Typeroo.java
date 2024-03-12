@@ -31,6 +31,7 @@ public class Typeroo extends javax.swing.JFrame {
     
     String[] words = readWordsFromFile("words.txt");
     int score = 1;
+    int newScore;
     int time = 15;
     int lives = 3;
     int hints = 4;
@@ -38,54 +39,10 @@ public class Typeroo extends javax.swing.JFrame {
     private JLabel timerLabel;
     private Timer timer;
     private int countdown;
-    
-    
-    
     Border panel_border = BorderFactory.createMatteBorder(1,1,1,1, Color.black);
     
-    public Typeroo() {
-    initComponents();
-    this.setLocationRelativeTo(null);
-    jFrame1.setLocationRelativeTo(null);
-    jFrame2.setLocationRelativeTo(null);
-    jDialog1.setLocationRelativeTo(null);
     
-    jPanel4.setBorder(panel_border);
-    jPanel6.setBorder(panel_border);
-    jPanel7.setBorder(panel_border);
-
     
-    countdown = 15;
-    label_timer.setText(Integer.toString(countdown));
-    timer = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            countdown--;
-            if (countdown >= 0) {
-                label_timer.setText(Integer.toString(countdown));
-            } else {
-                timer.stop();
-                JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.INFORMATION_MESSAGE);
-                lives--;
-                displayHUD();
-                displayWords();
-                
-                if (lives > 0) {
-                    countdown = 15;
-                    label_timer.setText(Integer.toString(countdown));
-                    displayHUD();
-                    timer.start(); // Restart the timer
-                } else {
-                    jDialog1.setVisible(true);
-                    jFrame2.setVisible(false);
-                    displayHUD();
-                    timer.stop();
-                }
-            }
-        }
-        });
-        displayWords();
-    }
 
     private String randomWord;
     
@@ -101,7 +58,7 @@ public class Typeroo extends javax.swing.JFrame {
             int pos = random.nextInt(randomWord.length());
             StringBuilder newText = new StringBuilder(randomWord);
 
-            if (randomWord.length() > 5) {
+            if (randomWord.length() > 7) {
                 int pos1 = random.nextInt(randomWord.length());
                 int pos2 = random.nextInt(randomWord.length());
                 
@@ -123,6 +80,7 @@ public class Typeroo extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Correct!!!");
             countdown = 15;
             score++;
+            newScore = score;
             timer.start();
         }else{
             timer.stop();
@@ -141,10 +99,54 @@ public class Typeroo extends javax.swing.JFrame {
         jTextField_Guess.setText("");
     }
     
+    public Typeroo() {
+    initComponents();
+    this.setLocationRelativeTo(null);
+    jFrame1.setLocationRelativeTo(null);
+    jFrame2.setLocationRelativeTo(null);
+    jDialog1.setLocationRelativeTo(null);
+    
+    jPanel4.setBorder(panel_border);
+    jPanel6.setBorder(panel_border);
+    jPanel7.setBorder(panel_border);
+
+    
+    countdown = 15;
+    label_timer.setText(Integer.toString(countdown));
+    
+    timer = new Timer(1000, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            countdown--;
+            if (countdown >= 0) {
+                label_timer.setText(Integer.toString(countdown));
+            } else {
+                timer.stop();
+                JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.INFORMATION_MESSAGE);
+                lives--;
+                displayHUD();
+                displayWords();
+                
+                if (lives > 0) {
+                    label_timer.setText(Integer.toString(countdown));
+                    displayHUD();
+                    timer.start(); // Restart the timer
+                } else {
+                    jDialog1.setVisible(true);
+                    jFrame2.setVisible(false);
+                    displayHUD();
+                    timer.stop();
+                }
+            }
+        }
+        });
+        displayWords();
+    }
+    
     public void displayHUD(){
         label_score.setText(Integer.toString((score)));
         label_lives.setText(Integer.toString((lives)));
-        jLabel26.setText(Integer.toString((score)));
+            jLabel26.setText(Integer.toString((score)));
         label_timer.setText(Integer.toString(time));
         
     }
@@ -517,14 +519,6 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(290, 290, 290)
-                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(353, 353, 353))
-            .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(38, 38, 38)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel9Layout.createSequentialGroup()
@@ -550,11 +544,20 @@ public class Typeroo extends javax.swing.JFrame {
                     .addGroup(jPanel9Layout.createSequentialGroup()
                         .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel9Layout.createSequentialGroup()
-                                .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(114, 114, 114)
+                                .addGap(173, 173, 173)
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jButton5))
                         .addGap(0, 0, Short.MAX_VALUE))))
+            .addGroup(jPanel9Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(13, 13, 13))
+                    .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -575,14 +578,17 @@ public class Typeroo extends javax.swing.JFrame {
                     .addComponent(label_lives)
                     .addComponent(label_timer))
                 .addGap(41, 41, 41)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(hintButton))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(33, 33, 33)
                 .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(42, 42, 42)
-                .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(198, Short.MAX_VALUE))
+                .addGap(40, 40, 40)
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jButton_submit, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+                        .addContainerGap(200, Short.MAX_VALUE))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
