@@ -14,6 +14,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,14 +34,21 @@ public class Typeroo extends javax.swing.JFrame {
     String[] words = readWordsFromFile("words.txt");
     int score = 1;
     int newScore;
-    int time = 15;
+    int easyTime = 20;
+    int averageTime = 15;
+    int difficultTime = 10;
     int lives = 3;
-    int hints = 4;
+    int easyLives = 5;
+    int averageLives = 3;  // Lives for average difficulty
+    int hints = 0;  // No hints by default
     int index = -1;
+    boolean isEasyMode;
+    boolean isHardMode;
     private JLabel timerLabel;
     private Timer timer;
     private int countdown;
     Border panel_border = BorderFactory.createMatteBorder(1,1,1,1, Color.black);
+    
     
     
     
@@ -50,7 +59,11 @@ public class Typeroo extends javax.swing.JFrame {
     public void displayWords(){
         if (words.length == 0){
             jLabel21.setText("--Word--");
+            jLabel37.setText("--Word--");
+            jLabel42.setText("--Word--");
             jTextField_Guess.setText("Guess");
+            jTextField_Guess1.setText("Guess");
+            jTextField_Guess2.setText("Guess");
         }else{
             Random random = new Random();
             randomWord = words[random.nextInt(words.length)];
@@ -68,88 +81,180 @@ public class Typeroo extends javax.swing.JFrame {
                 newText.replace(pos, pos + 1, " _ ");
             }
             
-
             jLabel21.setText(newText.toString());
+            jLabel37.setText(newText.toString());
+            jLabel42.setText(newText.toString());
         }
     }
     
     //Display if user correctly guessed the word
-    public void checkWords(){
-        if (jTextField_Guess.getText().toLowerCase().equals(randomWord)) {
+    public void checkWords() {
+        if (jTextField_Guess.getText().toLowerCase().equals(randomWord) || jTextField_Guess1.getText().toLowerCase().equals(randomWord) || jTextField_Guess2.getText().toLowerCase().equals(randomWord)) {
             timer.stop();
             JOptionPane.showMessageDialog(null, "Correct!!!");
-            countdown = 15;
+            if (isEasyMode) {
+                countdown = easyTime;
+            } else if (isHardMode) {
+                countdown = difficultTime;
+            } else {
+                countdown = averageTime;
+            }
             score++;
             newScore = score;
+            easyTimer1.setText(Integer.toString(countdown));  // Update display immediately
+            average_timer.setText(Integer.toString(countdown));
+            difficultTimer1.setText(Integer.toString(countdown));
             timer.start();
-        }else{
+        } else {
             timer.stop();
             JOptionPane.showMessageDialog(null, "Incorrect!!!");
-            countdown = 15;
-            lives--;
+            if (isEasyMode) {
+                countdown = easyTime;
+            } else if (isHardMode) {
+                countdown = difficultTime;
+            } else {
+                countdown = averageTime;
+            } // Reset to average time on wrong guess (all difficulties)
+            averageLives--;
             timer.start();
-            if (lives == 0){
+            if (averageLives == 0) {
                 jDialog1.setVisible(true);
-                jFrame2.setVisible(false);
-                lives = 3;
+                middleDifficultyFrame.setVisible(false);
+                averageLives = easyLives;  // Reset lives based on difficulty on game over
+                hints = 0;  // Reset hints to 0
                 timer.stop();
             }
         }
         displayHUD();
         jTextField_Guess.setText("");
+        jTextField_Guess2.setText("");
+        jTextField_Guess1.setText("");
     }
     
     public Typeroo() {
-    initComponents();
-    this.setLocationRelativeTo(null);
-    jFrame1.setLocationRelativeTo(null);
-    jFrame2.setLocationRelativeTo(null);
-    jDialog1.setLocationRelativeTo(null);
-    
-    jPanel4.setBorder(panel_border);
-    jPanel6.setBorder(panel_border);
-    jPanel7.setBorder(panel_border);
-
-    
-    countdown = 15;
-    label_timer.setText(Integer.toString(countdown));
-    
-    timer = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            countdown--;
-            if (countdown >= 0) {
-                label_timer.setText(Integer.toString(countdown));
-            } else {
-                timer.stop();
-                JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.INFORMATION_MESSAGE);
-                lives--;
-                displayHUD();
-                displayWords();
-                
-                if (lives > 0) {
-                    label_timer.setText(Integer.toString(countdown));
-                    displayHUD();
-                    timer.start(); // Restart the timer
+        initComponents();
+        this.setLocationRelativeTo(null);
+        howToFrame.setLocationRelativeTo(null);
+        difficultyFrame.setLocationRelativeTo(null);
+        easyDifficultyFrame.setLocationRelativeTo(null);
+        middleDifficultyFrame.setLocationRelativeTo(null);
+        hardDifficultyFrame.setLocationRelativeTo(null);
+        jDialog1.setLocationRelativeTo(null);
+        
+        jPanel4.setBorder(panel_border);
+        jPanel6.setBorder(panel_border);
+        jPanel7.setBorder(panel_border);
+        
+        jButton2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isEasyMode = true;
+                countdown = easyTime;
+                averageLives = easyLives;  // Set lives for easy mode
+                hints = 5;  // Set hints for easy mode
+            }
+        });
+        
+        jButton6.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isEasyMode = false;
+                countdown = averageTime;
+                averageLives = 3;  // Set lives for average mode
+                hints = 3;  // Set hints for average mode (optional)
+            }
+        });
+        
+        jButton7.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isEasyMode = false;
+                isHardMode = true;
+                countdown = difficultTime;
+                averageLives = 3;  // Set lives for average mode
+                hints = 0;  // Set hints for average mode (optional)
+            }
+        });
+        
+        // Set initial countdown based on the selected difficulty
+        if (isEasyMode){
+            countdown = easyTime;
+        }else {
+            countdown = averageTime; // Default to average for other difficulties
+        }
+        
+        easyTimer1.setText(Integer.toString(easyTime));
+        average_timer.setText(Integer.toString(averageTime));
+        difficultTimer1.setText(Integer.toString(difficultTime));
+        
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (countdown >= 0) {
+                    countdown--;
+                    easyTimer1.setText(Integer.toString(countdown));
+                    average_timer.setText(Integer.toString(countdown));
+                    difficultTimer1.setText(Integer.toString(countdown));
                 } else {
-                    jDialog1.setVisible(true);
-                    jFrame2.setVisible(false);
+                    JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.WARNING_MESSAGE);
+                    lives--;
                     displayHUD();
+                    displayWords();
                     timer.stop();
+                    if (lives > 0) {
+                        countdown = averageTime;
+                        displayHUD();
+                        timer.start();
+                    } else {
+                        jDialog1.setVisible(true);
+                        middleDifficultyFrame.setVisible(false);
+                        lives = easyLives;  // Reset lives based on difficulty on game over
+                        hints = 0;  // Reset hints to 0
+                        timer.stop();
+                    }
                 }
             }
-        }
         });
+        
+        jDialog1.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                timer.stop();
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                super.windowClosed(e);
+                timer.start();
+            }
+        });
+        
         displayWords();
     }
     
-    public void displayHUD(){
-        label_score.setText(Integer.toString((score)));
-        label_lives.setText(Integer.toString((lives)));
-            jLabel26.setText(Integer.toString((score)));
-        label_timer.setText(Integer.toString(time));
-        
+    
+    
+    public void displayHUD() {
+        label_score.setText(Integer.toString(score));
+        label_score1.setText(Integer.toString(score));
+        label_score2.setText(Integer.toString(score));
+        label_lives.setText(Integer.toString(averageLives));  // Update lives based on difficulty
+        label_lives1.setText(Integer.toString(averageLives));
+        label_lives2.setText(Integer.toString(averageLives));
+        jLabel26.setText(Integer.toString(score));
+        easyTimer1.setText(Integer.toString(easyTime));
+        average_timer.setText(Integer.toString(averageTime));
+        difficultTimer1.setText(Integer.toString(difficultTime));
+        jScrollPane1.setBackground(Color.BLACK);
+        jScrollPane1.getViewport().setBackground(new Color(247, 194, 2));
+        jScrollPane2.setBackground(Color.BLACK);
+        jScrollPane2.getViewport().setBackground(new Color(247, 194, 2));
+        jScrollPane3.setBackground(Color.BLACK);
+        jScrollPane3.getViewport().setBackground(new Color(247, 194, 2));
+        // Update hints display if implemented (optional)
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -160,12 +265,10 @@ public class Typeroo extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jFrame1 = new javax.swing.JFrame();
+        howToFrame = new javax.swing.JFrame();
         jPanel7 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        jButton4 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
@@ -176,23 +279,80 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jFrame2 = new javax.swing.JFrame();
+        jPanel18 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel32 = new javax.swing.JLabel();
+        difficultyFrame = new javax.swing.JFrame();
+        jPanel11 = new javax.swing.JPanel();
+        jPanel12 = new javax.swing.JPanel();
+        jPanel13 = new javax.swing.JPanel();
+        jLabel29 = new javax.swing.JLabel();
+        exitPanel5 = new javax.swing.JLabel();
+        exitPanel6 = new javax.swing.JLabel();
+        jPanel14 = new javax.swing.JPanel();
+        jLabel27 = new javax.swing.JLabel();
+        jPanel15 = new javax.swing.JPanel();
+        jButton2 = new javax.swing.JButton();
+        jLabel28 = new javax.swing.JLabel();
+        jPanel16 = new javax.swing.JPanel();
+        jButton6 = new javax.swing.JButton();
+        jLabel30 = new javax.swing.JLabel();
+        jPanel17 = new javax.swing.JPanel();
+        jButton7 = new javax.swing.JButton();
+        jLabel31 = new javax.swing.JLabel();
+        easyDifficultyFrame = new javax.swing.JFrame();
+        jPanel19 = new javax.swing.JPanel();
+        jPanel20 = new javax.swing.JPanel();
+        jTextField_Guess1 = new javax.swing.JTextField();
+        jButton_submit1 = new javax.swing.JButton();
+        hintButton1 = new javax.swing.JButton();
+        jPanel21 = new javax.swing.JPanel();
+        exitPanel7 = new javax.swing.JLabel();
+        jLabel33 = new javax.swing.JLabel();
+        exitPanel8 = new javax.swing.JLabel();
+        label_lives1 = new javax.swing.JLabel();
+        jLabel34 = new javax.swing.JLabel();
+        jLabel35 = new javax.swing.JLabel();
+        jLabel36 = new javax.swing.JLabel();
+        easyTimer1 = new javax.swing.JLabel();
+        label_score1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jLabel37 = new javax.swing.JLabel();
+        middleDifficultyFrame = new javax.swing.JFrame();
         jPanel6 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
-        jLabel18 = new javax.swing.JLabel();
-        jButton5 = new javax.swing.JButton();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel19 = new javax.swing.JLabel();
-        jLabel20 = new javax.swing.JLabel();
         jTextField_Guess = new javax.swing.JTextField();
         jButton_submit = new javax.swing.JButton();
-        exitPanel = new javax.swing.JLabel();
-        label_score = new javax.swing.JLabel();
+        hintButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        exitPanel3 = new javax.swing.JLabel();
+        jLabel18 = new javax.swing.JLabel();
+        exitPanel2 = new javax.swing.JLabel();
         label_lives = new javax.swing.JLabel();
-        label_timer = new javax.swing.JLabel();
+        jLabel19 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel20 = new javax.swing.JLabel();
+        average_timer = new javax.swing.JLabel();
+        label_score = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel21 = new javax.swing.JLabel();
-        hintButton = new javax.swing.JButton();
+        hardDifficultyFrame = new javax.swing.JFrame();
+        jPanel22 = new javax.swing.JPanel();
+        jPanel23 = new javax.swing.JPanel();
+        jTextField_Guess2 = new javax.swing.JTextField();
+        jButton_submit2 = new javax.swing.JButton();
+        jPanel24 = new javax.swing.JPanel();
+        exitPanel9 = new javax.swing.JLabel();
+        jLabel38 = new javax.swing.JLabel();
+        exitPanel10 = new javax.swing.JLabel();
+        label_lives2 = new javax.swing.JLabel();
+        jLabel39 = new javax.swing.JLabel();
+        jLabel40 = new javax.swing.JLabel();
+        jLabel41 = new javax.swing.JLabel();
+        difficultTimer1 = new javax.swing.JLabel();
+        label_score2 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jLabel42 = new javax.swing.JLabel();
         jDialog1 = new javax.swing.JDialog();
         jPanel2 = new javax.swing.JPanel();
         jLabel23 = new javax.swing.JLabel();
@@ -202,46 +362,32 @@ public class Typeroo extends javax.swing.JFrame {
         noButton = new javax.swing.JButton();
         playAgain1 = new javax.swing.JButton();
         jLabel26 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
         exitPanel1 = new javax.swing.JLabel();
+        exitPanel4 = new javax.swing.JLabel();
 
-        jFrame1.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        jFrame1.setBackground(new java.awt.Color(76, 73, 229));
-        jFrame1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jFrame1.setResizable(false);
-        jFrame1.setSize(new java.awt.Dimension(800, 600));
+        howToFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        howToFrame.setBackground(new java.awt.Color(71, 71, 71));
+        howToFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        howToFrame.setResizable(false);
+        howToFrame.setSize(new java.awt.Dimension(800, 600));
 
-        jPanel8.setBackground(new java.awt.Color(76, 73, 229));
+        jPanel8.setBackground(new java.awt.Color(37, 35, 35));
         jPanel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        jLabel5.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel5.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("Typeroo Word Game");
 
         jLabel8.setBackground(new java.awt.Color(51, 51, 255));
         jLabel8.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("How to Play?");
-
-        jButton4.setBackground(new java.awt.Color(76, 120, 229));
-        jButton4.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jButton4.setForeground(new java.awt.Color(255, 255, 255));
-        jButton4.setText("Go back");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
 
         jLabel4.setBackground(new java.awt.Color(51, 51, 255));
         jLabel4.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
@@ -303,52 +449,82 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jLabel17.setText("6. The player's score is based on the ");
 
+        jPanel18.setBackground(new java.awt.Color(71, 71, 71));
+
+        jLabel5.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel5.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setText("Typeroo Word Game");
+
+        jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
+        jLabel32.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel32.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel32MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel18Layout = new javax.swing.GroupLayout(jPanel18);
+        jPanel18.setLayout(jPanel18Layout);
+        jPanel18Layout.setHorizontalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
+                .addGap(41, 41, 41)
+                .addComponent(jLabel32)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 459, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(152, 152, 152))
+        );
+        jPanel18Layout.setVerticalGroup(
+            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel18Layout.createSequentialGroup()
+                .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel18Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel18Layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(jLabel32)))
+                .addContainerGap(20, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(50, 50, 50)
-                .addComponent(jButton4)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(jPanel8Layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 760, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 760, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel8Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel8Layout.createSequentialGroup()
-                                .addGap(17, 17, 17)
-                                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                            .addGroup(jPanel8Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(191, 191, 191))))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addGap(17, 17, 17)
+                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(jPanel8Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(191, 191, 191))
+            .addComponent(jPanel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jButton4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(21, 21, 21)
                 .addComponent(jLabel8)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4)
@@ -386,62 +562,531 @@ public class Typeroo extends javax.swing.JFrame {
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout jFrame1Layout = new javax.swing.GroupLayout(jFrame1.getContentPane());
-        jFrame1.getContentPane().setLayout(jFrame1Layout);
-        jFrame1Layout.setHorizontalGroup(
-            jFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout howToFrameLayout = new javax.swing.GroupLayout(howToFrame.getContentPane());
+        howToFrame.getContentPane().setLayout(howToFrameLayout);
+        howToFrameLayout.setHorizontalGroup(
+            howToFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-        jFrame1Layout.setVerticalGroup(
-            jFrame1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrame1Layout.createSequentialGroup()
+        howToFrameLayout.setVerticalGroup(
+            howToFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, howToFrameLayout.createSequentialGroup()
                 .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
-        jFrame2.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        jFrame2.setBackground(new java.awt.Color(76, 73, 229));
-        jFrame2.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jFrame2.setResizable(false);
-        jFrame2.setSize(new java.awt.Dimension(800, 600));
+        difficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        difficultyFrame.setBackground(new java.awt.Color(37, 35, 35));
+        difficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        difficultyFrame.setPreferredSize(new java.awt.Dimension(800, 600));
+        difficultyFrame.setResizable(false);
+        difficultyFrame.setSize(new java.awt.Dimension(800, 600));
 
-        jPanel9.setBackground(new java.awt.Color(76, 73, 229));
-        jPanel9.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jPanel12.setBackground(new java.awt.Color(37, 35, 35));
+        jPanel12.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel18.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel18.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel18.setText("Typeroo Word Game");
+        jPanel13.setBackground(new java.awt.Color(71, 71, 71));
 
-        jButton5.setBackground(new java.awt.Color(76, 120, 229));
-        jButton5.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(255, 255, 255));
-        jButton5.setText("Home");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+        jLabel29.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel29.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel29.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel29.setText("Typeroo Word Game");
+
+        exitPanel5.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel5.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel5.setText("X");
+        exitPanel5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel5MouseClicked(evt);
             }
         });
 
-        jLabel3.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Heart.png"))); // NOI18N
-        jLabel3.setText("Lives:");
+        exitPanel6.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel6.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
+        exitPanel6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel6MouseClicked(evt);
+            }
+        });
 
-        jLabel19.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Score--transformed.png"))); // NOI18N
-        jLabel19.setText("Score: ");
+        javax.swing.GroupLayout jPanel13Layout = new javax.swing.GroupLayout(jPanel13);
+        jPanel13.setLayout(jPanel13Layout);
+        jPanel13Layout.setHorizontalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel13Layout.createSequentialGroup()
+                .addGap(59, 59, 59)
+                .addComponent(exitPanel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 474, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(90, 90, 90)
+                .addComponent(exitPanel5)
+                .addGap(49, 49, 49))
+        );
+        jPanel13Layout.setVerticalGroup(
+            jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel13Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel13Layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(exitPanel6))
+                    .addGroup(jPanel13Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel29, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(exitPanel5)))
+                .addContainerGap(27, Short.MAX_VALUE))
+        );
 
-        jLabel20.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jLabel20.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Time-.png"))); // NOI18N
-        jLabel20.setText("Time: ");
+        jPanel14.setBackground(new java.awt.Color(26, 25, 25));
 
-        jTextField_Guess.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jLabel27.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jLabel27.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel27.setText("CHOOSE A GAME DIFFICULTY!");
+
+        jButton2.setBackground(new java.awt.Color(71, 71, 71));
+        jButton2.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
+        jButton2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("EASY");
+        jButton2.setBorder(null);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jLabel28.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel28.setText("  easy mode for weaklings");
+
+        javax.swing.GroupLayout jPanel15Layout = new javax.swing.GroupLayout(jPanel15);
+        jPanel15.setLayout(jPanel15Layout);
+        jPanel15Layout.setHorizontalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel15Layout.createSequentialGroup()
+                        .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 161, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 17, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel15Layout.setVerticalGroup(
+            jPanel15Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel15Layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(77, 77, 77)
+                .addComponent(jLabel28, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(84, Short.MAX_VALUE))
+        );
+
+        jButton6.setBackground(new java.awt.Color(71, 71, 71));
+        jButton6.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
+        jButton6.setForeground(new java.awt.Color(255, 255, 255));
+        jButton6.setText("MEDIUM");
+        jButton6.setBorder(null);
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jLabel30.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel30.setText("Medium mode for normal minds");
+
+        javax.swing.GroupLayout jPanel16Layout = new javax.swing.GroupLayout(jPanel16);
+        jPanel16.setLayout(jPanel16Layout);
+        jPanel16Layout.setHorizontalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel16Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel30, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel16Layout.setVerticalGroup(
+            jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel16Layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel30, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(77, 77, 77))
+        );
+
+        jButton7.setBackground(new java.awt.Color(71, 71, 71));
+        jButton7.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
+        jButton7.setForeground(new java.awt.Color(255, 255, 255));
+        jButton7.setText("HARD");
+        jButton7.setBorder(null);
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
+        jLabel31.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel31.setText("       Hard mode for smart ones");
+
+        javax.swing.GroupLayout jPanel17Layout = new javax.swing.GroupLayout(jPanel17);
+        jPanel17.setLayout(jPanel17Layout);
+        jPanel17Layout.setHorizontalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                .addContainerGap())
+            .addComponent(jLabel31, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+        );
+        jPanel17Layout.setVerticalGroup(
+            jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addComponent(jButton7, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(78, 78, 78))
+        );
+
+        javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
+        jPanel14.setLayout(jPanel14Layout);
+        jPanel14Layout.setHorizontalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel27)
+                .addGap(192, 192, 192))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel14Layout.createSequentialGroup()
+                .addGap(23, 23, 23)
+                .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 41, Short.MAX_VALUE)
+                .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(32, 32, 32)
+                .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(19, 19, 19))
+        );
+        jPanel14Layout.setVerticalGroup(
+            jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel14Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jLabel27)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel17, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(1307, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
+        jPanel12.setLayout(jPanel12Layout);
+        jPanel12Layout.setHorizontalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addGap(36, 36, 36)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(34, Short.MAX_VALUE))
+        );
+        jPanel12Layout.setVerticalGroup(
+            jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel12Layout.createSequentialGroup()
+                .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
+        jPanel11.setLayout(jPanel11Layout);
+        jPanel11Layout.setHorizontalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        jPanel11Layout.setVerticalGroup(
+            jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel11Layout.createSequentialGroup()
+                .addComponent(jPanel12, javax.swing.GroupLayout.PREFERRED_SIZE, 889, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout difficultyFrameLayout = new javax.swing.GroupLayout(difficultyFrame.getContentPane());
+        difficultyFrame.getContentPane().setLayout(difficultyFrameLayout);
+        difficultyFrameLayout.setHorizontalGroup(
+            difficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        difficultyFrameLayout.setVerticalGroup(
+            difficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, difficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        easyDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        easyDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
+        easyDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        easyDifficultyFrame.setPreferredSize(new java.awt.Dimension(817, 606));
+        easyDifficultyFrame.setResizable(false);
+        easyDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
+
+        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
+        jPanel19.setLayout(jPanel19Layout);
+        jPanel19Layout.setHorizontalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1710, Short.MAX_VALUE)
+        );
+        jPanel19Layout.setVerticalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        jPanel20.setBackground(new java.awt.Color(37, 35, 35));
+        jPanel20.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTextField_Guess1.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
+        jTextField_Guess1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextField_Guess1.setText("Guess");
+        jTextField_Guess1.setBorder(null);
+        jTextField_Guess1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTextField_Guess1MouseClicked(evt);
+            }
+        });
+        jTextField_Guess1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField_Guess1ActionPerformed(evt);
+            }
+        });
+        jTextField_Guess1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextField_Guess1KeyPressed(evt);
+            }
+        });
+
+        jButton_submit1.setBackground(new java.awt.Color(38, 85, 201));
+        jButton_submit1.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jButton_submit1.setForeground(new java.awt.Color(255, 255, 255));
+        jButton_submit1.setText("Enter");
+        jButton_submit1.setBorder(null);
+        jButton_submit1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_submit1ActionPerformed(evt);
+            }
+        });
+
+        hintButton1.setBackground(new java.awt.Color(95, 38, 201));
+        hintButton1.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        hintButton1.setForeground(new java.awt.Color(255, 255, 255));
+        hintButton1.setText("Hint");
+        hintButton1.setBorder(null);
+        hintButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hintButton1ActionPerformed(evt);
+            }
+        });
+
+        jPanel21.setBackground(new java.awt.Color(71, 71, 71));
+
+        exitPanel7.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        exitPanel7.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        exitPanel7.setText(" X");
+        exitPanel7.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel7.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel7MouseClicked(evt);
+            }
+        });
+
+        jLabel33.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel33.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel33.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel33.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel33.setText("Typeroo Word Game");
+
+        exitPanel8.setBackground(new java.awt.Color(112, 112, 112));
+        exitPanel8.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel8.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel8.setText(" X");
+        exitPanel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel8MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel21Layout = new javax.swing.GroupLayout(jPanel21);
+        jPanel21.setLayout(jPanel21Layout);
+        jPanel21Layout.setHorizontalGroup(
+            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel21Layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(exitPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65)
+                .addComponent(exitPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45))
+        );
+        jPanel21Layout.setVerticalGroup(
+            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel21Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel21Layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(exitPanel7))
+                    .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(exitPanel8)))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+
+        label_lives1.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        label_lives1.setForeground(new java.awt.Color(255, 255, 255));
+        label_lives1.setText("3");
+
+        jLabel34.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel34.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel34.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Score.png"))); // NOI18N
+        jLabel34.setText("Score: ");
+
+        jLabel35.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel35.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel35.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Heart.png"))); // NOI18N
+        jLabel35.setText("Lives:");
+
+        jLabel36.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel36.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel36.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Time-.png"))); // NOI18N
+        jLabel36.setText("Time: ");
+
+        easyTimer1.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        easyTimer1.setForeground(new java.awt.Color(255, 255, 255));
+        easyTimer1.setText("20");
+
+        label_score1.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        label_score1.setForeground(new java.awt.Color(255, 255, 255));
+        label_score1.setText("  ");
+
+        jScrollPane2.setBackground(new java.awt.Color(0, 0, 204));
+        jScrollPane2.setBorder(null);
+        jScrollPane2.setForeground(new java.awt.Color(0, 153, 255));
+
+        jLabel37.setBackground(new java.awt.Color(247, 194, 2));
+        jLabel37.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
+        jLabel37.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel37.setText("W O R D");
+        jLabel37.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jLabel37.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jScrollPane2.setViewportView(jLabel37);
+
+        javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
+        jPanel20.setLayout(jPanel20Layout);
+        jPanel20Layout.setHorizontalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel21, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                        .addComponent(jButton_submit1, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(29, 29, 29)
+                        .addComponent(hintButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(291, 291, 291))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                        .addComponent(jLabel34)
+                        .addGap(0, 0, 0)
+                        .addComponent(label_score1)
+                        .addGap(109, 109, 109)
+                        .addComponent(jLabel36)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(easyTimer1)
+                        .addGap(114, 114, 114)
+                        .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(label_lives1)
+                        .addGap(103, 103, 103))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(196, 196, 196))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                        .addComponent(jTextField_Guess1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(263, 263, 263))))
+        );
+        jPanel20Layout.setVerticalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel20Layout.createSequentialGroup()
+                .addComponent(jPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel36)
+                    .addComponent(jLabel35)
+                    .addComponent(label_score1)
+                    .addComponent(label_lives1)
+                    .addComponent(easyTimer1))
+                .addGap(73, 73, 73)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jTextField_Guess1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54)
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton_submit1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hintButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(284, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout easyDifficultyFrameLayout = new javax.swing.GroupLayout(easyDifficultyFrame.getContentPane());
+        easyDifficultyFrame.getContentPane().setLayout(easyDifficultyFrameLayout);
+        easyDifficultyFrameLayout.setHorizontalGroup(
+            easyDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(easyDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(jPanel19, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        easyDifficultyFrameLayout.setVerticalGroup(
+            easyDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, easyDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel19, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(820, 820, 820))
+            .addGroup(easyDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel20, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
+        );
+
+        middleDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        middleDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
+        middleDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        middleDifficultyFrame.setPreferredSize(new java.awt.Dimension(817, 606));
+        middleDifficultyFrame.setResizable(false);
+        middleDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1710, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        jPanel9.setBackground(new java.awt.Color(37, 35, 35));
+        jPanel9.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTextField_Guess.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
         jTextField_Guess.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextField_Guess.setText("Guess");
+        jTextField_Guess.setBorder(null);
         jTextField_Guess.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jTextField_GuessMouseClicked(evt);
@@ -458,44 +1103,117 @@ public class Typeroo extends javax.swing.JFrame {
             }
         });
 
-        jButton_submit.setBackground(new java.awt.Color(0, 153, 255));
+        jButton_submit.setBackground(new java.awt.Color(38, 85, 201));
         jButton_submit.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jButton_submit.setForeground(new java.awt.Color(255, 255, 255));
         jButton_submit.setText("Enter");
-        jButton_submit.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jButton_submit.setBorder(null);
         jButton_submit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton_submitActionPerformed(evt);
             }
         });
 
-        exitPanel.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
-        exitPanel.setForeground(new java.awt.Color(255, 255, 255));
-        exitPanel.setText("X");
-        exitPanel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        exitPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                exitPanelMouseClicked(evt);
+        hintButton.setBackground(new java.awt.Color(95, 38, 201));
+        hintButton.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        hintButton.setForeground(new java.awt.Color(255, 255, 255));
+        hintButton.setText("Hint");
+        hintButton.setBorder(null);
+        hintButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hintButtonActionPerformed(evt);
             }
         });
 
-        label_score.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        label_score.setForeground(new java.awt.Color(255, 255, 255));
-        label_score.setText("  ");
+        jPanel1.setBackground(new java.awt.Color(71, 71, 71));
+
+        exitPanel3.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        exitPanel3.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        exitPanel3.setText(" X");
+        exitPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel3MouseClicked(evt);
+            }
+        });
+
+        jLabel18.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel18.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel18.setText("Typeroo Word Game");
+
+        exitPanel2.setBackground(new java.awt.Color(112, 112, 112));
+        exitPanel2.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel2.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel2.setText(" X");
+        exitPanel2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel2MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(exitPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65)
+                .addComponent(exitPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(exitPanel3))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(exitPanel2)))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
 
         label_lives.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
         label_lives.setForeground(new java.awt.Color(255, 255, 255));
         label_lives.setText("3");
 
-        label_timer.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        label_timer.setForeground(new java.awt.Color(255, 255, 255));
-        label_timer.setText("15");
+        jLabel19.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel19.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel19.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Score.png"))); // NOI18N
+        jLabel19.setText("Score: ");
+
+        jLabel3.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Heart.png"))); // NOI18N
+        jLabel3.setText("Lives:");
+
+        jLabel20.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel20.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel20.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Time-.png"))); // NOI18N
+        jLabel20.setText("Time: ");
+
+        average_timer.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        average_timer.setForeground(new java.awt.Color(255, 255, 255));
+        average_timer.setText("15");
+
+        label_score.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        label_score.setForeground(new java.awt.Color(255, 255, 255));
+        label_score.setText("  ");
 
         jScrollPane1.setBackground(new java.awt.Color(0, 0, 204));
-        jScrollPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        jScrollPane1.setBorder(null);
         jScrollPane1.setForeground(new java.awt.Color(0, 153, 255));
 
-        jLabel21.setBackground(new java.awt.Color(204, 204, 204));
+        jLabel21.setBackground(new java.awt.Color(247, 194, 2));
         jLabel21.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
         jLabel21.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel21.setText("W O R D");
@@ -503,131 +1221,311 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel21.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jScrollPane1.setViewportView(jLabel21);
 
-        hintButton.setBackground(new java.awt.Color(102, 102, 255));
-        hintButton.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        hintButton.setForeground(new java.awt.Color(255, 255, 255));
-        hintButton.setText("Hint");
-        hintButton.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED, java.awt.Color.lightGray, java.awt.Color.white, java.awt.Color.lightGray, java.awt.Color.gray));
-        hintButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                hintButtonActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel9Layout.createSequentialGroup()
-                                .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 711, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(exitPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel9Layout.createSequentialGroup()
-                                .addGap(100, 100, 100)
-                                .addComponent(jLabel19)
-                                .addGap(0, 0, 0)
-                                .addComponent(label_score)
-                                .addGap(109, 109, 109)
-                                .addComponent(jLabel20)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(label_timer)
-                                .addGap(93, 93, 93)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(label_lives)))
-                        .addGap(12, 24, Short.MAX_VALUE))
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel9Layout.createSequentialGroup()
-                                .addGap(173, 173, 173)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButton5))
-                        .addGap(0, 0, Short.MAX_VALUE))))
-            .addGroup(jPanel9Layout.createSequentialGroup()
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                         .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addGap(29, 29, 29)
                         .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(13, 13, 13))
-                    .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(291, 291, 291))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                        .addComponent(jLabel19)
+                        .addGap(0, 0, 0)
+                        .addComponent(label_score)
+                        .addGap(109, 109, 109)
+                        .addComponent(jLabel20)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(average_timer)
+                        .addGap(114, 114, 114)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(label_lives)
+                        .addGap(103, 103, 103))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(196, 196, 196))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                        .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(263, 263, 263))))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(exitPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(jButton5)
-                .addGap(43, 43, 43)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel20)
                     .addComponent(jLabel3)
                     .addComponent(label_score)
                     .addComponent(label_lives)
-                    .addComponent(label_timer))
-                .addGap(41, 41, 41)
+                    .addComponent(average_timer))
+                .addGap(73, 73, 73)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(33, 33, 33)
-                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
+                .addGap(18, 18, 18)
+                .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addComponent(jButton_submit, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
-                        .addContainerGap(200, Short.MAX_VALUE))
-                    .addGroup(jPanel9Layout.createSequentialGroup()
-                        .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addComponent(jButton_submit, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(hintButton, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(284, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
+        javax.swing.GroupLayout middleDifficultyFrameLayout = new javax.swing.GroupLayout(middleDifficultyFrame.getContentPane());
+        middleDifficultyFrame.getContentPane().setLayout(middleDifficultyFrameLayout);
+        middleDifficultyFrameLayout.setHorizontalGroup(
+            middleDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(middleDifficultyFrameLayout.createSequentialGroup()
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jFrame2Layout = new javax.swing.GroupLayout(jFrame2.getContentPane());
-        jFrame2.getContentPane().setLayout(jFrame2Layout);
-        jFrame2Layout.setHorizontalGroup(
-            jFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jFrame2Layout.setVerticalGroup(
-            jFrame2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jFrame2Layout.createSequentialGroup()
-                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(45, 45, 45)
+                .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+        );
+        middleDifficultyFrameLayout.setVerticalGroup(
+            middleDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, middleDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(820, 820, 820))
+            .addGroup(middleDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
+        );
+
+        hardDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        hardDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
+        hardDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        hardDifficultyFrame.setPreferredSize(new java.awt.Dimension(817, 606));
+        hardDifficultyFrame.setResizable(false);
+        hardDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
+
+        javax.swing.GroupLayout jPanel22Layout = new javax.swing.GroupLayout(jPanel22);
+        jPanel22.setLayout(jPanel22Layout);
+        jPanel22Layout.setHorizontalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 1710, Short.MAX_VALUE)
+        );
+        jPanel22Layout.setVerticalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
+        jPanel23.setBackground(new java.awt.Color(37, 35, 35));
+        jPanel23.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+        jTextField_Guess2.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
+        jTextField_Guess2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextField_Guess2.setText("Guess");
+        jTextField_Guess2.setBorder(null);
+        jTextField_Guess2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTextField_Guess2MouseClicked(evt);
+            }
+        });
+        jTextField_Guess2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField_Guess2ActionPerformed(evt);
+            }
+        });
+        jTextField_Guess2.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextField_Guess2KeyPressed(evt);
+            }
+        });
+
+        jButton_submit2.setBackground(new java.awt.Color(38, 85, 201));
+        jButton_submit2.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jButton_submit2.setForeground(new java.awt.Color(255, 255, 255));
+        jButton_submit2.setText("Enter");
+        jButton_submit2.setBorder(null);
+        jButton_submit2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton_submit2ActionPerformed(evt);
+            }
+        });
+
+        jPanel24.setBackground(new java.awt.Color(71, 71, 71));
+
+        exitPanel9.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        exitPanel9.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        exitPanel9.setText(" X");
+        exitPanel9.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel9.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel9MouseClicked(evt);
+            }
+        });
+
+        jLabel38.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel38.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel38.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel38.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel38.setText("Typeroo Word Game");
+
+        exitPanel10.setBackground(new java.awt.Color(112, 112, 112));
+        exitPanel10.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel10.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel10.setText(" X");
+        exitPanel10.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel10.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel10MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel24Layout = new javax.swing.GroupLayout(jPanel24);
+        jPanel24.setLayout(jPanel24Layout);
+        jPanel24Layout.setHorizontalGroup(
+            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel24Layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(exitPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
+                .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65)
+                .addComponent(exitPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45))
+        );
+        jPanel24Layout.setVerticalGroup(
+            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel24Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel24Layout.createSequentialGroup()
+                        .addGap(7, 7, 7)
+                        .addComponent(exitPanel9))
+                    .addGroup(jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(exitPanel10)))
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+
+        label_lives2.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        label_lives2.setForeground(new java.awt.Color(255, 255, 255));
+        label_lives2.setText("3");
+
+        jLabel39.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel39.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel39.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Score.png"))); // NOI18N
+        jLabel39.setText("Score: ");
+
+        jLabel40.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel40.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel40.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Heart.png"))); // NOI18N
+        jLabel40.setText("Lives:");
+
+        jLabel41.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        jLabel41.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel41.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Time-.png"))); // NOI18N
+        jLabel41.setText("Time: ");
+
+        difficultTimer1.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        difficultTimer1.setForeground(new java.awt.Color(255, 255, 255));
+        difficultTimer1.setText("10");
+
+        label_score2.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
+        label_score2.setForeground(new java.awt.Color(255, 255, 255));
+        label_score2.setText("  ");
+
+        jScrollPane3.setBackground(new java.awt.Color(0, 0, 204));
+        jScrollPane3.setBorder(null);
+        jScrollPane3.setForeground(new java.awt.Color(0, 153, 255));
+
+        jLabel42.setBackground(new java.awt.Color(247, 194, 2));
+        jLabel42.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
+        jLabel42.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel42.setText("W O R D");
+        jLabel42.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jLabel42.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jScrollPane3.setViewportView(jLabel42);
+
+        javax.swing.GroupLayout jPanel23Layout = new javax.swing.GroupLayout(jPanel23);
+        jPanel23.setLayout(jPanel23Layout);
+        jPanel23Layout.setHorizontalGroup(
+            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel24, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                        .addComponent(jLabel39)
+                        .addGap(0, 0, 0)
+                        .addComponent(label_score2)
+                        .addGap(109, 109, 109)
+                        .addComponent(jLabel41)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(difficultTimer1)
+                        .addGap(114, 114, 114)
+                        .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(label_lives2)
+                        .addGap(103, 103, 103))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 378, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(196, 196, 196))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                        .addComponent(jTextField_Guess2, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(263, 263, 263))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                        .addComponent(jButton_submit2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(341, 341, 341))))
+        );
+        jPanel23Layout.setVerticalGroup(
+            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel23Layout.createSequentialGroup()
+                .addComponent(jPanel24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel41)
+                    .addComponent(jLabel40)
+                    .addComponent(label_score2)
+                    .addComponent(label_lives2)
+                    .addComponent(difficultTimer1))
+                .addGap(73, 73, 73)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jTextField_Guess2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(44, 44, 44)
+                .addComponent(jButton_submit2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(294, Short.MAX_VALUE))
+        );
+
+        javax.swing.GroupLayout hardDifficultyFrameLayout = new javax.swing.GroupLayout(hardDifficultyFrame.getContentPane());
+        hardDifficultyFrame.getContentPane().setLayout(hardDifficultyFrameLayout);
+        hardDifficultyFrameLayout.setHorizontalGroup(
+            hardDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(hardDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel23, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(jPanel22, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        hardDifficultyFrameLayout.setVerticalGroup(
+            hardDifficultyFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, hardDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel22, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(820, 820, 820))
+            .addGroup(hardDifficultyFrameLayout.createSequentialGroup()
+                .addComponent(jPanel23, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18))
         );
 
         jDialog1.setSize(new java.awt.Dimension(430, 333));
 
-        jPanel2.setBackground(new java.awt.Color(76, 73, 229));
+        jPanel2.setBackground(new java.awt.Color(71, 71, 71));
 
         jLabel23.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel23.setForeground(new java.awt.Color(255, 255, 255));
         jLabel23.setText("GAME OVER");
 
-        jPanel3.setBackground(new java.awt.Color(78, 76, 190));
+        jPanel3.setBackground(new java.awt.Color(37, 35, 35));
 
         jLabel24.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
         jLabel24.setForeground(new java.awt.Color(255, 255, 255));
@@ -637,20 +1535,22 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel25.setForeground(new java.awt.Color(255, 255, 255));
         jLabel25.setText("Final Score: ");
 
-        noButton.setBackground(new java.awt.Color(76, 73, 229));
+        noButton.setBackground(new java.awt.Color(185, 24, 24));
         noButton.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         noButton.setForeground(new java.awt.Color(255, 255, 255));
         noButton.setText("No");
+        noButton.setBorder(null);
         noButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 noButtonActionPerformed(evt);
             }
         });
 
-        playAgain1.setBackground(new java.awt.Color(76, 73, 229));
+        playAgain1.setBackground(new java.awt.Color(24, 185, 58));
         playAgain1.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         playAgain1.setForeground(new java.awt.Color(255, 255, 255));
         playAgain1.setText("Yes");
+        playAgain1.setBorder(null);
         playAgain1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 playAgain1ActionPerformed(evt);
@@ -690,7 +1590,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel25)
                     .addComponent(jLabel26))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 46, Short.MAX_VALUE)
                 .addComponent(jLabel24)
                 .addGap(29, 29, 29)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -730,42 +1630,28 @@ public class Typeroo extends javax.swing.JFrame {
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        jLabel22.setText("jLabel22");
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(76, 73, 229));
+        setBackground(new java.awt.Color(37, 35, 35));
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setPreferredSize(new java.awt.Dimension(800, 600));
         setResizable(false);
         setSize(new java.awt.Dimension(800, 600));
 
-        jPanel5.setBackground(new java.awt.Color(76, 73, 229));
+        jPanel5.setBackground(new java.awt.Color(37, 35, 35));
         jPanel5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Image.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Logoasdasd.png"))); // NOI18N
 
-        jButton1.setBackground(new java.awt.Color(76, 120, 229));
+        jButton1.setBackground(new java.awt.Color(71, 71, 71));
         jButton1.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("PLAY GAME");
-        jButton1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED, java.awt.Color.white, null, null, java.awt.Color.blue));
+        jButton1.setBorder(null);
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel1.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Typeroo Word Game");
-
-        jButton2.setBackground(new java.awt.Color(76, 120, 229));
-        jButton2.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("How to Play?");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
             }
         });
 
@@ -777,7 +1663,15 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
         jLabel7.setText("you improve your typing skills while having fun!");
 
-        exitPanel1.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        jPanel10.setBackground(new java.awt.Color(71, 71, 71));
+
+        jLabel1.setBackground(new java.awt.Color(51, 51, 255));
+        jLabel1.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("Typeroo Word Game");
+
+        exitPanel1.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
         exitPanel1.setForeground(new java.awt.Color(255, 255, 255));
         exitPanel1.setText("X");
         exitPanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -787,54 +1681,75 @@ public class Typeroo extends javax.swing.JFrame {
             }
         });
 
+        exitPanel4.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
+        exitPanel4.setForeground(new java.awt.Color(255, 255, 255));
+        exitPanel4.setText("?");
+        exitPanel4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        exitPanel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                exitPanel4MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
+        jPanel10.setLayout(jPanel10Layout);
+        jPanel10Layout.setHorizontalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
+                .addContainerGap(73, Short.MAX_VALUE)
+                .addComponent(exitPanel4)
+                .addGap(63, 63, 63)
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 474, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(90, 90, 90)
+                .addComponent(exitPanel1)
+                .addGap(49, 49, 49))
+        );
+        jPanel10Layout.setVerticalGroup(
+            jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(exitPanel1)
+                    .addComponent(exitPanel4))
+                .addContainerGap(14, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(38, 38, 38)
-                .addComponent(jButton2)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(85, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 661, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(exitPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(17, 17, 17))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel2)
-                        .addGap(299, 299, 299))
+                        .addGap(237, 237, 237))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6)
+                            .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addComponent(jLabel7)
-                                .addGap(9, 9, 9))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(jButton1)
-                                .addGap(88, 88, 88)))
-                        .addGap(200, 200, 200))))
+                                .addGap(9, 9, 9)))
+                        .addGap(199, 199, 199))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(268, 268, 268))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(exitPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addComponent(jButton2)
-                .addGap(50, 50, 50)
-                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(42, 42, 42)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
-                .addGap(31, 31, 31)
-                .addComponent(jButton1)
-                .addGap(192, 192, 192))
+                .addGap(18, 18, 18)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(294, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -869,44 +1784,12 @@ public class Typeroo extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.setVisible(false);
-        jFrame2.setVisible(true);
-        score = 0;
-        index = 0;
-        lives = 3;
-        hints = 4;
-        timer.start();
-        displayHUD();
-        displayWords();
+        difficultyFrame.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        this.setVisible(false);
-        jFrame1.setVisible(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
-
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        this.setVisible(true);
-        jFrame1.setVisible(false);
-    }//GEN-LAST:event_jButton4ActionPerformed
-
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        this.setVisible(true);
-        jFrame2.setVisible(false);
-        timer.stop();
-        score = 0;
-        countdown = 16;
-    }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jTextField_GuessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_GuessActionPerformed
 
     }//GEN-LAST:event_jTextField_GuessActionPerformed
-
-    private void exitPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanelMouseClicked
-        // To Close
-        timer.stop();
-        JOptionPane.showMessageDialog(null, "Thanks for Playing!!!");
-        System.exit(0);
-    }//GEN-LAST:event_exitPanelMouseClicked
 
     private void jButton_submitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_submitActionPerformed
         checkWords();
@@ -928,18 +1811,13 @@ public class Typeroo extends javax.swing.JFrame {
 
     private void noButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_noButtonActionPerformed
         this.setVisible(true);
-        jFrame2.setVisible(false);
+        middleDifficultyFrame.setVisible(false);
         jDialog1.setVisible(false);
     }//GEN-LAST:event_noButtonActionPerformed
 
     private void playAgain1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playAgain1ActionPerformed
         jDialog1.setVisible(false);
-        jButton1ActionPerformed(null);
-        countdown = 15;
-        hints = 4;
-        label_timer.setText(Integer.toString(countdown));
-        timer.start();
-        displayHUD();
+        difficultyFrame.setVisible(true);
     }//GEN-LAST:event_playAgain1ActionPerformed
 
     private void exitPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel1MouseClicked
@@ -958,6 +1836,159 @@ public class Typeroo extends javax.swing.JFrame {
         }
         timer.start();
     }//GEN-LAST:event_hintButtonActionPerformed
+
+    private void exitPanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel2MouseClicked
+        timer.stop();
+        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
+        System.exit(0);
+    }//GEN-LAST:event_exitPanel2MouseClicked
+
+    private void exitPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel3MouseClicked
+        this.setVisible(true);
+        middleDifficultyFrame.setVisible(false);
+        timer.stop();
+        score = 0;
+    }//GEN-LAST:event_exitPanel3MouseClicked
+
+    private void exitPanel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel4MouseClicked
+        
+        
+    }//GEN-LAST:event_exitPanel4MouseClicked
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        difficultyFrame.setVisible(false);
+        easyDifficultyFrame.setVisible(true);
+        String selectedDifficulty = "easy";
+        score = 0;
+        index = 0;
+        lives = 5;
+        hints = 5;
+        timer.start();
+        displayHUD();
+        displayWords();
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void exitPanel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel5MouseClicked
+        JOptionPane.showMessageDialog(null, "Thanks for playing!!!" + "\nYour total score is: " + score);
+        System.exit(0);
+    }//GEN-LAST:event_exitPanel5MouseClicked
+
+    private void exitPanel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel6MouseClicked
+        this.setVisible(true);
+        difficultyFrame.setVisible(false);
+    }//GEN-LAST:event_exitPanel6MouseClicked
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        difficultyFrame.setVisible(false);
+        middleDifficultyFrame.setVisible(true);
+        String selectedDifficulty = "average";
+        score = 0;
+        index = 0;
+        lives = 3;
+        hints = 4;
+        timer.start();
+        displayHUD();
+        displayWords();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        difficultyFrame.setVisible(false);
+        hardDifficultyFrame.setVisible(true);
+        String selectedDifficulty = "hard";
+        score = 0;
+        index = 0;
+        lives = 3;
+        timer.start();
+        displayHUD();
+        displayWords();
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jLabel32MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel32MouseClicked
+        howToFrame.setVisible(false);
+        this.setVisible(true);
+    }//GEN-LAST:event_jLabel32MouseClicked
+
+    private void jTextField_Guess1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField_Guess1MouseClicked
+        jTextField_Guess1.setText(" ");
+    }//GEN-LAST:event_jTextField_Guess1MouseClicked
+
+    private void jTextField_Guess1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_Guess1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField_Guess1ActionPerformed
+
+    private void jTextField_Guess1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_Guess1KeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            jButton_submit1ActionPerformed(null); // Trigger the action performed by the login button
+        }
+    }//GEN-LAST:event_jTextField_Guess1KeyPressed
+
+    private void jButton_submit1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_submit1ActionPerformed
+        checkWords();
+        if (index<words.length - 1){
+            index++;
+            displayWords();
+        }
+    }//GEN-LAST:event_jButton_submit1ActionPerformed
+
+    private void hintButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hintButton1ActionPerformed
+        timer.stop();
+        if (hints > 0) {
+        hints--;
+        JOptionPane.showMessageDialog(null, "The word is " + randomWord + "\nYour hints are only: " + hints);
+        }
+        if (hints == 0) {
+            JOptionPane.showMessageDialog(null, "All of your hints are used!!!");
+        }
+        timer.start();
+    }//GEN-LAST:event_hintButton1ActionPerformed
+
+    private void exitPanel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel7MouseClicked
+        this.setVisible(true);
+        easyDifficultyFrame.setVisible(false);
+        timer.stop();
+        score = 0;
+    }//GEN-LAST:event_exitPanel7MouseClicked
+
+    private void exitPanel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel8MouseClicked
+        timer.stop();
+        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
+        System.exit(0);
+    }//GEN-LAST:event_exitPanel8MouseClicked
+
+    private void jTextField_Guess2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField_Guess2MouseClicked
+        jTextField_Guess2.setText(" ");
+    }//GEN-LAST:event_jTextField_Guess2MouseClicked
+
+    private void jTextField_Guess2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField_Guess2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField_Guess2ActionPerformed
+
+    private void jTextField_Guess2KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField_Guess2KeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            jButton_submit2ActionPerformed(null); // Trigger the action performed by the login button
+        }  
+    }//GEN-LAST:event_jTextField_Guess2KeyPressed
+
+    private void jButton_submit2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_submit2ActionPerformed
+        checkWords();
+        if (index<words.length - 1){
+            index++;
+            displayWords();
+        }
+    }//GEN-LAST:event_jButton_submit2ActionPerformed
+
+    private void exitPanel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel9MouseClicked
+        this.setVisible(true);
+        hardDifficultyFrame.setVisible(false);
+        timer.stop();
+        score = 0;
+    }//GEN-LAST:event_exitPanel9MouseClicked
+
+    private void exitPanel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel10MouseClicked
+        timer.stop();
+        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
+        System.exit(0);
+    }//GEN-LAST:event_exitPanel10MouseClicked
 
     /**
      * @param args the command line arguments
@@ -1010,6 +2041,10 @@ public class Typeroo extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
+                try{
+                    UIManager.setLookAndFeel("com.jtattoo.plaf.aluminumLookAndFeel");
+                }catch(Exception ee){
+                }
                 new Typeroo().setVisible(true);
             }
         });
@@ -1018,17 +2053,33 @@ public class Typeroo extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel exitPanel;
+    private javax.swing.JLabel average_timer;
+    private javax.swing.JLabel difficultTimer1;
+    private javax.swing.JFrame difficultyFrame;
+    private javax.swing.JFrame easyDifficultyFrame;
+    private javax.swing.JLabel easyTimer1;
     private javax.swing.JLabel exitPanel1;
+    private javax.swing.JLabel exitPanel10;
+    private javax.swing.JLabel exitPanel2;
+    private javax.swing.JLabel exitPanel3;
+    private javax.swing.JLabel exitPanel4;
+    private javax.swing.JLabel exitPanel5;
+    private javax.swing.JLabel exitPanel6;
+    private javax.swing.JLabel exitPanel7;
+    private javax.swing.JLabel exitPanel8;
+    private javax.swing.JLabel exitPanel9;
+    private javax.swing.JFrame hardDifficultyFrame;
     private javax.swing.JButton hintButton;
+    private javax.swing.JButton hintButton1;
+    private javax.swing.JFrame howToFrame;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton_submit;
+    private javax.swing.JButton jButton_submit1;
+    private javax.swing.JButton jButton_submit2;
     private javax.swing.JDialog jDialog1;
-    private javax.swing.JFrame jFrame1;
-    private javax.swing.JFrame jFrame2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1043,18 +2094,51 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
+    private javax.swing.JLabel jLabel32;
+    private javax.swing.JLabel jLabel33;
+    private javax.swing.JLabel jLabel34;
+    private javax.swing.JLabel jLabel35;
+    private javax.swing.JLabel jLabel36;
+    private javax.swing.JLabel jLabel37;
+    private javax.swing.JLabel jLabel38;
+    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel40;
+    private javax.swing.JLabel jLabel41;
+    private javax.swing.JLabel jLabel42;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
+    private javax.swing.JPanel jPanel11;
+    private javax.swing.JPanel jPanel12;
+    private javax.swing.JPanel jPanel13;
+    private javax.swing.JPanel jPanel14;
+    private javax.swing.JPanel jPanel15;
+    private javax.swing.JPanel jPanel16;
+    private javax.swing.JPanel jPanel17;
+    private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel20;
+    private javax.swing.JPanel jPanel21;
+    private javax.swing.JPanel jPanel22;
+    private javax.swing.JPanel jPanel23;
+    private javax.swing.JPanel jPanel24;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
@@ -1063,10 +2147,18 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextField jTextField_Guess;
+    private javax.swing.JTextField jTextField_Guess1;
+    private javax.swing.JTextField jTextField_Guess2;
     private javax.swing.JLabel label_lives;
+    private javax.swing.JLabel label_lives1;
+    private javax.swing.JLabel label_lives2;
     private javax.swing.JLabel label_score;
-    private javax.swing.JLabel label_timer;
+    private javax.swing.JLabel label_score1;
+    private javax.swing.JLabel label_score2;
+    private javax.swing.JFrame middleDifficultyFrame;
     private javax.swing.JButton noButton;
     private javax.swing.JButton playAgain1;
     // End of variables declaration//GEN-END:variables
