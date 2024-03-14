@@ -16,16 +16,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.border.Border;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.sound.sampled.*;
 
 public class Typeroo extends javax.swing.JFrame {
 
@@ -46,11 +49,9 @@ public class Typeroo extends javax.swing.JFrame {
     int index = -1;
     boolean isEasyMode;
     boolean isHardMode;
-    private JLabel timerLabel;
     private Timer timer;
+    private float currentVolume = 0.1f;
     private int countdown;
-    private static int highestScore = 0;
-    Border panel_border = BorderFactory.createMatteBorder(1,1,1,1, Color.black);
     private int easyHighScore = 0;
     private int averageHighScore = 0;
     private int hardHighScore = 0;
@@ -59,8 +60,14 @@ public class Typeroo extends javax.swing.JFrame {
     private String userName;
     private String userName2;
     private String userName3;
+    static Clip clip;
+    static Clip clip2;
+    static Clip clip3;
+    static Clip clip4;
+    static Clip clip5;
+    static boolean isOriginalMusicPlaying = false;
+    Border panel_border = BorderFactory.createMatteBorder(1,1,1,1, Color.black);
     
-
     
     //Displaying the words
     public void displayWords(){
@@ -150,6 +157,26 @@ public class Typeroo extends javax.swing.JFrame {
                 averageLives = easyLives;  // Reset lives based on difficulty on game over
                 hints = 0;  // Reset hints to 0
                 timer.stop();
+                try {
+                    if (clip2 != null) {
+                        clip2.stop();
+                    }
+                    if (clip3 != null) {
+                        clip3.stop();
+                    }
+                    if (clip4 != null) {
+                        clip4.stop();
+                    }
+                    File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Game_Over_Sound.wav");
+                    AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                    clip5 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
+                    clip5.open(newAudioStream);
+                    applyVolumeToAllModes();
+                    clip5.start();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    // Handle any exceptions that might occur during loading/playing the new music
+                }
             }
         }
         displayHUD();
@@ -168,6 +195,7 @@ public class Typeroo extends javax.swing.JFrame {
         hardDifficultyFrame.setLocationRelativeTo(null);
         gameOverDialog1.setLocationRelativeTo(null);
         leaderBoardDialog.setLocationRelativeTo(null);
+        musicSettings.setLocationRelativeTo(null);
         jPanel4.setBorder(panel_border);
         jPanel6.setBorder(panel_border);
         jPanel7.setBorder(panel_border);
@@ -354,6 +382,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel49 = new javax.swing.JLabel();
         jLabel44 = new javax.swing.JLabel();
         jButton3 = new javax.swing.JButton();
+        menuIcon2 = new javax.swing.JLabel();
         easyDifficultyFrame = new javax.swing.JFrame();
         jPanel19 = new javax.swing.JPanel();
         jPanel20 = new javax.swing.JPanel();
@@ -372,6 +401,7 @@ public class Typeroo extends javax.swing.JFrame {
         label_score1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jLabel37 = new javax.swing.JLabel();
+        menuIcon1 = new javax.swing.JLabel();
         middleDifficultyFrame = new javax.swing.JFrame();
         jPanel6 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
@@ -390,6 +420,7 @@ public class Typeroo extends javax.swing.JFrame {
         label_score = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jLabel21 = new javax.swing.JLabel();
+        menuIcon3 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         hardDifficultyFrame = new javax.swing.JFrame();
         jPanel22 = new javax.swing.JPanel();
@@ -408,6 +439,7 @@ public class Typeroo extends javax.swing.JFrame {
         label_score2 = new javax.swing.JLabel();
         jScrollPane3 = new javax.swing.JScrollPane();
         jLabel42 = new javax.swing.JLabel();
+        menuIcon4 = new javax.swing.JLabel();
         leaderBoardDialog = new javax.swing.JDialog();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
@@ -439,6 +471,14 @@ public class Typeroo extends javax.swing.JFrame {
         noButton1 = new javax.swing.JButton();
         playAgain2 = new javax.swing.JButton();
         jLabel52 = new javax.swing.JLabel();
+        musicSettings = new javax.swing.JDialog();
+        jPanel32 = new javax.swing.JPanel();
+        jLabel53 = new javax.swing.JLabel();
+        jPanel33 = new javax.swing.JPanel();
+        musicLabel = new javax.swing.JLabel();
+        jLabel56 = new javax.swing.JLabel();
+        jSlider1 = new javax.swing.JSlider();
+        jLabel54 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -449,10 +489,12 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         exitPanel1 = new javax.swing.JLabel();
         howtoPlayPanel = new javax.swing.JLabel();
+        menuIcon = new javax.swing.JLabel();
 
         howToFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         howToFrame.setBackground(new java.awt.Color(71, 71, 71));
         howToFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        howToFrame.setUndecorated(true);
         howToFrame.setResizable(false);
         howToFrame.setSize(new java.awt.Dimension(800, 600));
 
@@ -654,6 +696,7 @@ public class Typeroo extends javax.swing.JFrame {
         difficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         difficultyFrame.setBackground(new java.awt.Color(37, 35, 35));
         difficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        difficultyFrame.setUndecorated(true);
         difficultyFrame.setPreferredSize(new java.awt.Dimension(800, 600));
         difficultyFrame.setResizable(false);
         difficultyFrame.setSize(new java.awt.Dimension(800, 600));
@@ -779,7 +822,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(jLabel28)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel46, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -824,22 +867,20 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel16.setLayout(jPanel16Layout);
         jPanel16Layout.setHorizontalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel16Layout.createSequentialGroup()
-                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel16Layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(jLabel48))
-                    .addGroup(jPanel16Layout.createSequentialGroup()
-                        .addGap(39, 39, 39)
-                        .addComponent(jLabel43)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
-                .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel16Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel47, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(26, 26, 26))
+            .addGroup(jPanel16Layout.createSequentialGroup()
+                .addGroup(jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel16Layout.createSequentialGroup()
+                        .addGap(39, 39, 39)
+                        .addComponent(jLabel43))
+                    .addGroup(jPanel16Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel48)))
+                .addContainerGap(8, Short.MAX_VALUE))
+            .addComponent(jButton6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel16Layout.setVerticalGroup(
             jPanel16Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -850,7 +891,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(jLabel47)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel48, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -896,6 +937,10 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel17Layout.setHorizontalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jButton7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel17Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
+                .addComponent(jLabel45)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
                 .addContainerGap(16, Short.MAX_VALUE)
                 .addGroup(jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -903,18 +948,15 @@ public class Typeroo extends javax.swing.JFrame {
                         .addComponent(jLabel49)
                         .addGap(47, 47, 47))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
-                        .addComponent(jLabel45)
-                        .addGap(37, 37, 37))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel17Layout.createSequentialGroup()
                         .addComponent(jLabel50)
                         .addContainerGap())))
         );
         jPanel17Layout.setVerticalGroup(
             jPanel17Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel17Layout.createSequentialGroup()
-                .addContainerGap(21, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel45)
-                .addGap(38, 38, 38)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel49)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel50, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -937,6 +979,13 @@ public class Typeroo extends javax.swing.JFrame {
             }
         });
 
+        menuIcon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuIcon2MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel14Layout = new javax.swing.GroupLayout(jPanel14);
         jPanel14.setLayout(jPanel14Layout);
         jPanel14Layout.setHorizontalGroup(
@@ -946,16 +995,17 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(jButton3)
                 .addGap(282, 282, 282))
             .addGroup(jPanel14Layout.createSequentialGroup()
+                .addGap(38, 38, 38)
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel14Layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
                         .addComponent(jPanel15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jPanel17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel14Layout.createSequentialGroup()
-                        .addGap(203, 203, 203)
+                        .addComponent(menuIcon2)
+                        .addGap(129, 129, 129)
                         .addComponent(jLabel44)))
                 .addContainerGap(43, Short.MAX_VALUE))
         );
@@ -963,8 +1013,10 @@ public class Typeroo extends javax.swing.JFrame {
             jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel14Layout.createSequentialGroup()
                 .addGap(7, 7, 7)
-                .addComponent(jLabel44)
-                .addGap(18, 18, 18)
+                .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel44)
+                    .addComponent(menuIcon2))
+                .addGap(11, 11, 11)
                 .addGroup(jPanel14Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel15, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel16, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
@@ -1022,6 +1074,7 @@ public class Typeroo extends javax.swing.JFrame {
         easyDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         easyDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
         easyDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        easyDifficultyFrame.setUndecorated(true);
         easyDifficultyFrame.setResizable(false);
         easyDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
 
@@ -1127,14 +1180,15 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel21Layout.setVerticalGroup(
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel21Layout.createSequentialGroup()
-                .addGap(18, 18, 18)
                 .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel21Layout.createSequentialGroup()
-                        .addGap(7, 7, 7)
-                        .addComponent(exitPanel7))
-                    .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(exitPanel8)))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(exitPanel8)))
+                    .addGroup(jPanel21Layout.createSequentialGroup()
+                        .addGap(25, 25, 25)
+                        .addComponent(exitPanel7)))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
 
@@ -1177,6 +1231,13 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel37.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jScrollPane2.setViewportView(jLabel37);
 
+        menuIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuIcon1MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
         jPanel20.setLayout(jPanel20Layout);
         jPanel20Layout.setHorizontalGroup(
@@ -1195,33 +1256,39 @@ public class Typeroo extends javax.swing.JFrame {
                         .addGap(196, 196, 196))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
                         .addComponent(jTextField_Guess1, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(259, 259, 259))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
-                        .addComponent(jLabel34)
-                        .addGap(0, 0, 0)
-                        .addComponent(label_score1)
-                        .addGap(109, 109, 109)
-                        .addComponent(jLabel36)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(easyTimer1)
-                        .addGap(114, 114, 114)
-                        .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_lives1)
-                        .addGap(105, 105, 105))))
+                        .addGap(259, 259, 259))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel20Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(menuIcon1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel34)
+                .addGap(0, 0, 0)
+                .addComponent(label_score1)
+                .addGap(109, 109, 109)
+                .addComponent(jLabel36)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(easyTimer1)
+                .addGap(114, 114, 114)
+                .addComponent(jLabel35, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(label_lives1)
+                .addGap(105, 105, 105))
         );
         jPanel20Layout.setVerticalGroup(
             jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel20Layout.createSequentialGroup()
-                .addComponent(jPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel36)
-                    .addComponent(jLabel35)
-                    .addComponent(label_score1)
-                    .addComponent(label_lives1)
-                    .addComponent(easyTimer1))
+                .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel20Layout.createSequentialGroup()
+                        .addComponent(jPanel21, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel34, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel36)
+                            .addComponent(jLabel35)
+                            .addComponent(label_score1)
+                            .addComponent(label_lives1)
+                            .addComponent(easyTimer1)))
+                    .addComponent(menuIcon1))
                 .addGap(73, 73, 73)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(29, 29, 29)
@@ -1256,6 +1323,7 @@ public class Typeroo extends javax.swing.JFrame {
         middleDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         middleDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
         middleDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        middleDifficultyFrame.setUndecorated(true);
         middleDifficultyFrame.setResizable(false);
         middleDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
 
@@ -1411,6 +1479,13 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel21.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jScrollPane1.setViewportView(jLabel21);
 
+        menuIcon3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuIcon3MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel9Layout = new javax.swing.GroupLayout(jPanel9);
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
@@ -1429,33 +1504,39 @@ public class Typeroo extends javax.swing.JFrame {
                         .addGap(196, 196, 196))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                         .addComponent(jTextField_Guess, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(261, 261, 261))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                        .addComponent(jLabel19)
-                        .addGap(0, 0, 0)
-                        .addComponent(label_score)
-                        .addGap(109, 109, 109)
-                        .addComponent(jLabel20)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(average_timer)
-                        .addGap(114, 114, 114)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_lives)
-                        .addGap(105, 105, 105))))
+                        .addGap(261, 261, 261))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(menuIcon3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel19)
+                .addGap(0, 0, 0)
+                .addComponent(label_score)
+                .addGap(109, 109, 109)
+                .addComponent(jLabel20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(average_timer)
+                .addGap(114, 114, 114)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(label_lives)
+                .addGap(105, 105, 105))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel20)
-                    .addComponent(jLabel3)
-                    .addComponent(label_score)
-                    .addComponent(label_lives)
-                    .addComponent(average_timer))
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel20)
+                            .addComponent(jLabel3)
+                            .addComponent(label_score)
+                            .addComponent(label_lives)
+                            .addComponent(average_timer)))
+                    .addComponent(menuIcon3))
                 .addGap(73, 73, 73)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -1516,6 +1597,7 @@ public class Typeroo extends javax.swing.JFrame {
         hardDifficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         hardDifficultyFrame.setBackground(new java.awt.Color(76, 73, 229));
         hardDifficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        hardDifficultyFrame.setUndecorated(true);
         hardDifficultyFrame.setResizable(false);
         hardDifficultyFrame.setSize(new java.awt.Dimension(800, 600));
 
@@ -1660,6 +1742,13 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel42.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jScrollPane3.setViewportView(jLabel42);
 
+        menuIcon4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuIcon4MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel23Layout = new javax.swing.GroupLayout(jPanel23);
         jPanel23.setLayout(jPanel23Layout);
         jPanel23Layout.setHorizontalGroup(
@@ -1676,33 +1765,39 @@ public class Typeroo extends javax.swing.JFrame {
                         .addGap(263, 263, 263))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
                         .addComponent(jButton_submit2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(341, 341, 341))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
-                        .addComponent(jLabel39)
-                        .addGap(0, 0, 0)
-                        .addComponent(label_score2)
-                        .addGap(109, 109, 109)
-                        .addComponent(jLabel41)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(difficultTimer1)
-                        .addGap(114, 114, 114)
-                        .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(label_lives2)
-                        .addGap(103, 103, 103))))
+                        .addGap(341, 341, 341))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel23Layout.createSequentialGroup()
+                .addGap(57, 57, 57)
+                .addComponent(menuIcon4)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel39)
+                .addGap(0, 0, 0)
+                .addComponent(label_score2)
+                .addGap(109, 109, 109)
+                .addComponent(jLabel41)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(difficultTimer1)
+                .addGap(114, 114, 114)
+                .addComponent(jLabel40, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(label_lives2)
+                .addGap(103, 103, 103))
         );
         jPanel23Layout.setVerticalGroup(
             jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel23Layout.createSequentialGroup()
-                .addComponent(jPanel24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel41)
-                    .addComponent(jLabel40)
-                    .addComponent(label_score2)
-                    .addComponent(label_lives2)
-                    .addComponent(difficultTimer1))
+                .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel23Layout.createSequentialGroup()
+                        .addComponent(jPanel24, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel39, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel41)
+                            .addComponent(jLabel40)
+                            .addComponent(label_score2)
+                            .addComponent(label_lives2)
+                            .addComponent(difficultTimer1)))
+                    .addComponent(menuIcon4))
                 .addGap(73, 73, 73)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -1732,7 +1827,9 @@ public class Typeroo extends javax.swing.JFrame {
                 .addGap(18, 18, 18))
         );
 
+        leaderBoardDialog.setUndecorated(true);
         leaderBoardDialog.setPreferredSize(new java.awt.Dimension(800, 400));
+        leaderBoardDialog.setResizable(false);
         leaderBoardDialog.setSize(new java.awt.Dimension(800, 400));
 
         jPanel2.setBackground(new java.awt.Color(71, 71, 71));
@@ -1747,7 +1844,7 @@ public class Typeroo extends javax.swing.JFrame {
 
         nameLeaderboard1.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
         nameLeaderboard1.setForeground(new java.awt.Color(255, 255, 255));
-        nameLeaderboard1.setText("Top 1");
+        nameLeaderboard1.setText("Top Player");
 
         nameLeaderboard.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
         nameLeaderboard.setForeground(new java.awt.Color(255, 255, 255));
@@ -1769,10 +1866,9 @@ public class Typeroo extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel29Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(nameLeaderboard3, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
-                    .addGroup(jPanel29Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(nameLeaderboard1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(nameLeaderboard, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
-                        .addComponent(nameLeaderboard2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(nameLeaderboard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
+                    .addComponent(nameLeaderboard2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(nameLeaderboard1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(493, 493, 493))
         );
         jPanel29Layout.setVerticalGroup(
@@ -1897,8 +1993,8 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(jPanel29, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(35, 35, 35)
                 .addComponent(jPanel30, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(57, 57, 57)
-                .addComponent(jPanel31, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(83, 83, 83)
+                .addComponent(jPanel31, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel26))
         );
@@ -1951,9 +2047,9 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(backArrow1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel25)
-                .addGap(164, 164, 164)
+                .addGap(179, 179, 179)
                 .addComponent(exitPanel6)
-                .addGap(141, 141, 141))
+                .addGap(126, 126, 126))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1982,13 +2078,15 @@ public class Typeroo extends javax.swing.JFrame {
             leaderBoardDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(leaderBoardDialogLayout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 85, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         leaderBoardDialogLayout.setVerticalGroup(
             leaderBoardDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        gameOverDialog1.setUndecorated(true);
+        gameOverDialog1.setResizable(false);
         gameOverDialog1.setSize(new java.awt.Dimension(430, 333));
 
         jPanel27.setBackground(new java.awt.Color(71, 71, 71));
@@ -2102,9 +2200,112 @@ public class Typeroo extends javax.swing.JFrame {
             .addComponent(jPanel27, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
+        musicSettings.setUndecorated(true);
+        musicSettings.setSize(new java.awt.Dimension(400, 300));
+
+        jPanel32.setBackground(new java.awt.Color(71, 71, 71));
+
+        jLabel53.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
+        jLabel53.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel53.setText("Music");
+
+        jPanel33.setBackground(new java.awt.Color(37, 35, 35));
+
+        musicLabel.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        musicLabel.setForeground(new java.awt.Color(255, 255, 255));
+        musicLabel.setText("Music Volume:");
+
+        jLabel56.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jLabel56.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel56.setText("   ");
+
+        jSlider1.setValue(100);
+        jSlider1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jSlider1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                jSlider1StateChanged(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel33Layout = new javax.swing.GroupLayout(jPanel33);
+        jPanel33.setLayout(jPanel33Layout);
+        jPanel33Layout.setHorizontalGroup(
+            jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel33Layout.createSequentialGroup()
+                .addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel33Layout.createSequentialGroup()
+                        .addGap(73, 73, 73)
+                        .addComponent(jLabel56))
+                    .addGroup(jPanel33Layout.createSequentialGroup()
+                        .addGap(124, 124, 124)
+                        .addComponent(musicLabel))
+                    .addGroup(jPanel33Layout.createSequentialGroup()
+                        .addGap(98, 98, 98)
+                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(102, Short.MAX_VALUE))
+        );
+        jPanel33Layout.setVerticalGroup(
+            jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel33Layout.createSequentialGroup()
+                .addGap(25, 25, 25)
+                .addComponent(jLabel56)
+                .addGap(5, 5, 5)
+                .addComponent(musicLabel)
+                .addGap(18, 18, 18)
+                .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(80, Short.MAX_VALUE))
+        );
+
+        jLabel54.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
+        jLabel54.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel54.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel54MouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel32Layout = new javax.swing.GroupLayout(jPanel32);
+        jPanel32.setLayout(jPanel32Layout);
+        jPanel32Layout.setHorizontalGroup(
+            jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel33, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel32Layout.createSequentialGroup()
+                .addGap(43, 43, 43)
+                .addComponent(jLabel54)
+                .addGap(60, 60, 60)
+                .addComponent(jLabel53)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel32Layout.setVerticalGroup(
+            jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel32Layout.createSequentialGroup()
+                .addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel32Layout.createSequentialGroup()
+                        .addGap(20, 20, 20)
+                        .addComponent(jLabel53))
+                    .addGroup(jPanel32Layout.createSequentialGroup()
+                        .addGap(32, 32, 32)
+                        .addComponent(jLabel54)))
+                .addGap(18, 18, 18)
+                .addComponent(jPanel33, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout musicSettingsLayout = new javax.swing.GroupLayout(musicSettings.getContentPane());
+        musicSettings.getContentPane().setLayout(musicSettingsLayout);
+        musicSettingsLayout.setHorizontalGroup(
+            musicSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel32, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        musicSettingsLayout.setVerticalGroup(
+            musicSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel32, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(37, 35, 35));
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        setUndecorated(true);
         setPreferredSize(new java.awt.Dimension(800, 600));
         setResizable(false);
         setSize(new java.awt.Dimension(800, 600));
@@ -2185,13 +2386,22 @@ public class Typeroo extends javax.swing.JFrame {
                 .addContainerGap(14, Short.MAX_VALUE))
         );
 
+        menuIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                menuIconMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addGap(254, 254, 254)
+                .addGap(67, 67, 67)
+                .addComponent(menuIcon)
+                .addGap(151, 151, 151)
                 .addComponent(jLabel2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
@@ -2212,7 +2422,9 @@ public class Typeroo extends javax.swing.JFrame {
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(menuIcon))
                 .addGap(12, 12, 12)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -2303,10 +2515,33 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_exitPanel2MouseClicked
 
     private void exitPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel3MouseClicked
+        if (clip != null) {
+            clip.stop();
+        }
+        if (clip2 != null) {
+            clip2.stop();
+        }
+        if (clip3 != null) {
+            clip3.stop();
+        }
+        if (clip4 != null) {
+            clip4.stop();
+        }
+        
         this.setVisible(true);
         middleDifficultyFrame.setVisible(false);
         timer.stop();
         score = 0;
+        try {
+            playOriginalMusic();
+            applyVolumeToAllModes();
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_exitPanel3MouseClicked
 
     private void howtoPlayPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_howtoPlayPanelMouseClicked
@@ -2321,7 +2556,6 @@ public class Typeroo extends javax.swing.JFrame {
         }else{
             difficultyFrame.setVisible(false);
             easyDifficultyFrame.setVisible(true);
-            String selectedDifficulty = "easy";
             score = 0;
             index = 0;
             lives = 5;
@@ -2330,6 +2564,14 @@ public class Typeroo extends javax.swing.JFrame {
             timer.start();
             displayHUD();
             displayWords();
+            
+            if (isOriginalMusicPlaying) {
+                clip.stop();
+                isOriginalMusicPlaying = false;
+            }
+            
+            playEasyModeMusic();
+            applyVolumeToAllModes();
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -2350,7 +2592,6 @@ public class Typeroo extends javax.swing.JFrame {
         }else{
             difficultyFrame.setVisible(false);
             middleDifficultyFrame.setVisible(true);
-            String selectedDifficulty = "average";
             score = 0;
             index = 0;
             lives = 3;
@@ -2359,6 +2600,14 @@ public class Typeroo extends javax.swing.JFrame {
             timer.start();
             displayHUD();
             displayWords();
+            
+         if (isOriginalMusicPlaying) {
+                clip.stop();
+                isOriginalMusicPlaying = false;
+         }
+         
+         playModerateModeMusic();
+         applyVolumeToAllModes();
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -2369,7 +2618,6 @@ public class Typeroo extends javax.swing.JFrame {
         }else{
             difficultyFrame.setVisible(false);
             hardDifficultyFrame.setVisible(true);
-            String selectedDifficulty = "hard";
             score = 0;
             index = 0;
             lives = 3;
@@ -2377,7 +2625,15 @@ public class Typeroo extends javax.swing.JFrame {
             timer.start();
             displayHUD();
             displayWords();
+            
+        if (isOriginalMusicPlaying) {
+                clip.stop();
+                isOriginalMusicPlaying = false;
+            }
         }
+        
+        playHardModeMusic();
+        applyVolumeToAllModes();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jLabel32MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel32MouseClicked
@@ -2420,10 +2676,32 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_hintButton1ActionPerformed
 
     private void exitPanel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel7MouseClicked
+        if (clip != null) {
+            clip.stop();
+        }
+        if (clip2 != null) {
+            clip2.stop();
+        }
+        if (clip3 != null) {
+            clip3.stop();
+        }
+        if (clip4 != null) {
+            clip4.stop();
+        }
         this.setVisible(true);
         easyDifficultyFrame.setVisible(false);
         timer.stop();
         score = 0;
+        try {
+            playOriginalMusic();
+            applyVolumeToAllModes();
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_exitPanel7MouseClicked
 
     private void exitPanel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel8MouseClicked
@@ -2455,10 +2733,33 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_submit2ActionPerformed
 
     private void exitPanel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel9MouseClicked
+        if (clip != null) {
+            clip.stop();
+        }
+        if (clip2 != null) {
+            clip2.stop();
+        }
+        if (clip3 != null) {
+            clip3.stop();
+        }
+        if (clip4 != null) {
+            clip4.stop();
+        }
+        
         this.setVisible(true);
         hardDifficultyFrame.setVisible(false);
         timer.stop();
         score = 0;
+        try {
+            playOriginalMusic();
+            applyVolumeToAllModes();
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_exitPanel9MouseClicked
 
     private void exitPanel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel10MouseClicked
@@ -2507,6 +2808,17 @@ public class Typeroo extends javax.swing.JFrame {
     private void playAgain2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playAgain2ActionPerformed
         gameOverDialog1.setVisible(false);
         difficultyFrame.setVisible(true);
+        try {
+            playOriginalMusic();
+            applyVolumeToAllModes();
+            clip2.stop();
+        } catch (LineUnavailableException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedAudioFileException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_playAgain2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -2525,7 +2837,87 @@ public class Typeroo extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_exitPanel6MouseClicked
 
+    private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
+        JSlider source = (JSlider)evt.getSource();
+        if (!source.getValueIsAdjusting()){
+            float sliderValue = (float) source.getValue() / 100.0f;
+            float limitedVolume = Math.min(sliderValue, 0.3f);
+            currentVolume = limitedVolume;
+            applyVolumeToAllModes();
+            
+            if (sliderValue == 100) {
+                setVolume(clip, 1.0f); // Set to default volume
+            }
+        }
+    }//GEN-LAST:event_jSlider1StateChanged
+
+    private void applyVolumeToAllModes(){
+        setVolume(clip, currentVolume);
+        setVolume(clip2, currentVolume);
+        setVolume(clip3, currentVolume);
+        setVolume(clip4, currentVolume);
+        setVolume(clip5, currentVolume);
+    }
     
+    private void jLabel54MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel54MouseClicked
+        musicSettings.setVisible(false);
+        onMusicSettingsMenuClosed(); 
+    }//GEN-LAST:event_jLabel54MouseClicked
+
+    private void menuIconMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIconMouseClicked
+        musicSettings.setVisible(true);
+    }//GEN-LAST:event_menuIconMouseClicked
+
+    private void menuIcon2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon2MouseClicked
+        musicSettings.setVisible(true);
+    }//GEN-LAST:event_menuIcon2MouseClicked
+
+    private void menuIcon1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon1MouseClicked
+        timer.stop();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                musicSettings.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_menuIcon1MouseClicked
+
+    public void onMusicSettingsMenuClosed() {
+        timer.start(); // Start the timer when the music settings menu is closed
+    }
+    
+    private void menuIcon3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon3MouseClicked
+        timer.stop();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                musicSettings.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_menuIcon3MouseClicked
+
+    private void menuIcon4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon4MouseClicked
+        timer.stop();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                musicSettings.setVisible(true);
+            }
+        });
+    }//GEN-LAST:event_menuIcon4MouseClicked
+
+    
+    public void setVolume(Clip clip, float volume){ // Corrected parameter list
+        if (clip != null) {
+            try {
+                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                float dB = (float) (Math.log(volume) / Math.log(10.0) * 10.0);
+                gainControl.setValue(dB);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
     
     /**
      * @param args the command line arguments
@@ -2568,7 +2960,60 @@ public class Typeroo extends javax.swing.JFrame {
         return wordList.toArray(new String[0]);
     }
     
-    public static void main(String args[]) {
+    public void windowClosing(WindowEvent e) {
+        // Exit the application when the main frame is closed
+        System.exit(0);
+    }
+    
+    public static void playOriginalMusic() throws LineUnavailableException, IOException, UnsupportedAudioFileException{
+        File file = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Main_Menu_Sound.wav");
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+        clip = AudioSystem.getClip();
+        clip.open(audioStream);
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        isOriginalMusicPlaying = true;
+    }
+    
+    public static void playEasyModeMusic(){
+        try {
+                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Easy_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                clip2 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
+                clip2.open(newAudioStream);
+                clip2.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Handle any exceptions that might occur during loading/playing the new music
+            }
+    }
+    
+    public static void playModerateModeMusic(){
+        try {
+                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Moderate_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                clip3 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
+                clip3.open(newAudioStream);
+                clip3.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Handle any exceptions that might occur during loading/playing the new music
+            }
+    }
+    
+    public static void playHardModeMusic(){
+        try {
+                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Hard_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                clip4 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
+                clip4.open(newAudioStream);
+                clip4.loop(Clip.LOOP_CONTINUOUSLY);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Handle any exceptions that might occur during loading/playing the new music
+            }
+    }
+    
+    public static void main(String args[]) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -2591,7 +3036,7 @@ public class Typeroo extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Typeroo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        playOriginalMusic();
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -2604,6 +3049,8 @@ public class Typeroo extends javax.swing.JFrame {
         });
     }
     
+    
+
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2685,6 +3132,9 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
     private javax.swing.JLabel jLabel52;
+    private javax.swing.JLabel jLabel53;
+    private javax.swing.JLabel jLabel54;
+    private javax.swing.JLabel jLabel56;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
@@ -2712,6 +3162,8 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel30;
     private javax.swing.JPanel jPanel31;
+    private javax.swing.JPanel jPanel32;
+    private javax.swing.JPanel jPanel33;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
@@ -2721,6 +3173,7 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JSlider jSlider1;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField_Guess;
     private javax.swing.JTextField jTextField_Guess1;
@@ -2732,7 +3185,14 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel label_score1;
     private javax.swing.JLabel label_score2;
     private javax.swing.JDialog leaderBoardDialog;
+    private javax.swing.JLabel menuIcon;
+    private javax.swing.JLabel menuIcon1;
+    private javax.swing.JLabel menuIcon2;
+    private javax.swing.JLabel menuIcon3;
+    private javax.swing.JLabel menuIcon4;
     private javax.swing.JFrame middleDifficultyFrame;
+    private javax.swing.JLabel musicLabel;
+    private javax.swing.JDialog musicSettings;
     private javax.swing.JLabel nameLeaderboard;
     private javax.swing.JLabel nameLeaderboard1;
     private javax.swing.JLabel nameLeaderboard2;
