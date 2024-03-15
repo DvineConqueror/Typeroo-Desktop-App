@@ -26,17 +26,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.*;
 
 public class Typeroo extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Typeroo
-     */
-    
-    
     int score = 1;
     int newScore;
     int easyTime = 20;
@@ -47,6 +43,7 @@ public class Typeroo extends javax.swing.JFrame {
     int averageLives = 3;  // Lives for average difficulty
     int hints = 0;  // No hints by default
     int index = -1;
+    boolean isGameStarted;
     boolean isEasyMode;
     boolean isHardMode;
     private Timer timer;
@@ -167,8 +164,8 @@ public class Typeroo extends javax.swing.JFrame {
                     if (clip4 != null) {
                         clip4.stop();
                     }
-                    File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Game_Over_Sound.wav");
-                    AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                    InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Game_Over_Sound.wav");
+                    AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
                     clip5 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
                     clip5.open(newAudioStream);
                     applyVolumeToAllModes();
@@ -259,7 +256,7 @@ public class Typeroo extends javax.swing.JFrame {
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (countdown >= 0) {
+                if (countdown > 0) {
                     countdown--;
                     easyTimer1.setText(Integer.toString(countdown));
                     average_timer.setText(Integer.toString(countdown));
@@ -267,6 +264,8 @@ public class Typeroo extends javax.swing.JFrame {
                 } else {
                     JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.WARNING_MESSAGE);
                     lives--;
+                    averageLives--;
+                    easyLives--;
                     displayHUD();
                     displayWords();
                     timer.stop();
@@ -291,11 +290,13 @@ public class Typeroo extends javax.swing.JFrame {
                 super.windowOpened(e);
                 timer.stop();
             }
-
+        });
+        
+        this.addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosed(WindowEvent e) {
-                super.windowClosed(e);
-                timer.start();
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                timer.stop();
             }
         });
     }
@@ -697,7 +698,6 @@ public class Typeroo extends javax.swing.JFrame {
         difficultyFrame.setBackground(new java.awt.Color(37, 35, 35));
         difficultyFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         difficultyFrame.setUndecorated(true);
-        difficultyFrame.setPreferredSize(new java.awt.Dimension(800, 600));
         difficultyFrame.setResizable(false);
         difficultyFrame.setSize(new java.awt.Dimension(800, 600));
 
@@ -980,6 +980,7 @@ public class Typeroo extends javax.swing.JFrame {
         });
 
         menuIcon2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         menuIcon2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 menuIcon2MouseClicked(evt);
@@ -1232,6 +1233,7 @@ public class Typeroo extends javax.swing.JFrame {
         jScrollPane2.setViewportView(jLabel37);
 
         menuIcon1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         menuIcon1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 menuIcon1MouseClicked(evt);
@@ -1480,6 +1482,7 @@ public class Typeroo extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jLabel21);
 
         menuIcon3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         menuIcon3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 menuIcon3MouseClicked(evt);
@@ -1743,6 +1746,7 @@ public class Typeroo extends javax.swing.JFrame {
         jScrollPane3.setViewportView(jLabel42);
 
         menuIcon4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         menuIcon4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 menuIcon4MouseClicked(evt);
@@ -1828,7 +1832,6 @@ public class Typeroo extends javax.swing.JFrame {
         );
 
         leaderBoardDialog.setUndecorated(true);
-        leaderBoardDialog.setPreferredSize(new java.awt.Dimension(800, 400));
         leaderBoardDialog.setResizable(false);
         leaderBoardDialog.setSize(new java.awt.Dimension(800, 400));
 
@@ -2387,6 +2390,7 @@ public class Typeroo extends javax.swing.JFrame {
         );
 
         menuIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Menu_Icon.png"))); // NOI18N
+        menuIcon.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         menuIcon.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 menuIconMouseClicked(evt);
@@ -2966,8 +2970,8 @@ public class Typeroo extends javax.swing.JFrame {
     }
     
     public static void playOriginalMusic() throws LineUnavailableException, IOException, UnsupportedAudioFileException{
-        File file = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Main_Menu_Sound.wav");
-        AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+        InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Main_Menu_Sound.wav");
+        AudioInputStream audioStream = AudioSystem.getAudioInputStream(inputStream);
         clip = AudioSystem.getClip();
         clip.open(audioStream);
         clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -2976,8 +2980,8 @@ public class Typeroo extends javax.swing.JFrame {
     
     public static void playEasyModeMusic(){
         try {
-                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Easy_Mode_Sound.wav");
-                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Easy_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
                 clip2 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
                 clip2.open(newAudioStream);
                 clip2.loop(Clip.LOOP_CONTINUOUSLY);
@@ -2989,8 +2993,8 @@ public class Typeroo extends javax.swing.JFrame {
     
     public static void playModerateModeMusic(){
         try {
-                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Moderate_Mode_Sound.wav");
-                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Moderate_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
                 clip3 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
                 clip3.open(newAudioStream);
                 clip3.loop(Clip.LOOP_CONTINUOUSLY);
@@ -3002,8 +3006,8 @@ public class Typeroo extends javax.swing.JFrame {
     
     public static void playHardModeMusic(){
         try {
-                File newMusicFile = new File("C:\\Users\\DivineConqueror\\Documents\\GitHub\\Typeroo-Desktop-App\\Typeroo\\src\\typeroo\\resources\\Music\\Hard_Mode_Sound.wav");
-                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(newMusicFile);
+                InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Hard_Mode_Sound.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
                 clip4 = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
                 clip4.open(newAudioStream);
                 clip4.loop(Clip.LOOP_CONTINUOUSLY);
