@@ -147,13 +147,13 @@ public class Typeroo extends javax.swing.JFrame {
             averageLives--;
             timer.start();
             if (averageLives == 0) {
-                gameOverDialog1.setVisible(true);
-                easyDifficultyFrame.setVisible(false);
-                middleDifficultyFrame.setVisible(false);
-                hardDifficultyFrame.setVisible(false);
-                averageLives = easyLives;  // Reset lives based on difficulty on game over
-                hints = 0;  // Reset hints to 0
                 timer.stop();
+                easyDifficultyFrame.dispose();
+                middleDifficultyFrame.dispose();
+                hardDifficultyFrame.dispose();
+                gameOverDialog1.setVisible(true);
+
+                hints = 0;  // Reset hints to 0
                 try {
                     if (clip2 != null) {
                         clip2.stop();
@@ -163,6 +163,9 @@ public class Typeroo extends javax.swing.JFrame {
                     }
                     if (clip4 != null) {
                         clip4.stop();
+                    }
+                    if (clip5 != null) {
+                        clip5.stop();
                     }
                     InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Game_Over_Sound.wav");
                     AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
@@ -196,7 +199,7 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel4.setBorder(panel_border);
         jPanel6.setBorder(panel_border);
         jPanel7.setBorder(panel_border);
-        
+
         if (isEasyMode) {
             words = readWordsFromFile("easy_words.txt", "easy");
         } else if (isHardMode) {
@@ -204,9 +207,9 @@ public class Typeroo extends javax.swing.JFrame {
         } else {
             words = readWordsFromFile("average_words.txt", "average");
         }
-        
+
         displayWords();
-        
+
         jButton2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -216,9 +219,10 @@ public class Typeroo extends javax.swing.JFrame {
                 averageLives = easyLives;  // Set lives for easy mode
                 hints = 5;  // Set hints for easy mode
                 words = readWordsFromFile("easy_words.txt", "easy");
+                startTimer();
             }
         });
-        
+
         jButton6.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -227,9 +231,10 @@ public class Typeroo extends javax.swing.JFrame {
                 averageLives = 3;  // Set lives for average mode
                 hints = 3;  // Set hints for average mode (optional)
                 words = readWordsFromFile("average_words.txt", "average");
+                startTimer();
             }
         });
-        
+
         jButton7.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -239,20 +244,22 @@ public class Typeroo extends javax.swing.JFrame {
                 averageLives = 3;  // Set lives for average mode
                 hints = 0;  // Set hints for average mode (optional)
                 words = readWordsFromFile("hard_words.txt", "hard");
+                startTimer();
             }
         });
-        
+
         // Set initial countdown based on the selected difficulty
-        if (isEasyMode){
+        if (isEasyMode) {
             countdown = easyTime;
-        }else {
-            countdown = averageTime; // Default to average for other difficulties
+        } else if (isHardMode) {
+            countdown = difficultTime; // Default to average for other difficulties
+        }else{
+            countdown = averageTime;
         }
-        
-        easyTimer1.setText(Integer.toString(easyTime));
-        average_timer.setText(Integer.toString(averageTime));
-        difficultTimer1.setText(Integer.toString(difficultTime));
-        
+    }
+
+    // Method to start the timer
+    private void startTimer() {
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -262,19 +269,27 @@ public class Typeroo extends javax.swing.JFrame {
                     average_timer.setText(Integer.toString(countdown));
                     difficultTimer1.setText(Integer.toString(countdown));
                 } else {
-                    JOptionPane.showMessageDialog(null, "Times up!!!", "Incorrect!", JOptionPane.WARNING_MESSAGE);
+                    if (gameOverDialog1.isVisible()) {
+                        timer.stop();
+                        return; // Exit the actionPerformed method
+                    }
+                    checkWords();
                     lives--;
-                    averageLives--;
-                    easyLives--;
                     displayHUD();
                     displayWords();
                     timer.stop();
                     if (lives > 0) {
-                        countdown = averageTime;
+                        if (isEasyMode) {
+                            countdown = easyTime;
+                        } else if (isHardMode) {
+                            countdown = difficultTime;
+                        } else {
+                            countdown = averageTime;
+                        }
                         displayHUD();
                         timer.start();
                     } else {
-                        leaderBoardDialog.setVisible(true);
+                        difficultyFrame.setVisible(true);
                         middleDifficultyFrame.setVisible(false);
                         lives = easyLives;  // Reset lives based on difficulty on game over
                         hints = 0;  // Reset hints to 0
@@ -283,23 +298,9 @@ public class Typeroo extends javax.swing.JFrame {
                 }
             }
         });
-        
-        leaderBoardDialog.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowOpened(WindowEvent e) {
-                super.windowOpened(e);
-                timer.stop();
-            }
-        });
-        
-        this.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowOpened(WindowEvent e) {
-                super.windowOpened(e);
-                timer.stop();
-            }
-        });
+        timer.start();
     }
+
     
     public void displayHUD() {
         label_score.setText(Integer.toString(score));
@@ -2810,12 +2811,23 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_noButton1ActionPerformed
 
     private void playAgain2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playAgain2ActionPerformed
-        gameOverDialog1.setVisible(false);
+        gameOverDialog1.dispose();
         difficultyFrame.setVisible(true);
         try {
             playOriginalMusic();
             applyVolumeToAllModes();
-            clip2.stop();
+            if (clip2 != null) {
+                clip2.stop();
+               }
+            if (clip3 != null) {
+                clip3.stop();
+               }
+            if (clip4 != null) {
+                clip4.stop();
+               }
+            if (clip5 != null) {
+                clip5.stop();
+                }
         } catch (LineUnavailableException ex) {
             Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -2865,7 +2877,6 @@ public class Typeroo extends javax.swing.JFrame {
     
     private void jLabel54MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel54MouseClicked
         musicSettings.setVisible(false);
-        onMusicSettingsMenuClosed(); 
     }//GEN-LAST:event_jLabel54MouseClicked
 
     private void menuIconMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIconMouseClicked
@@ -2877,7 +2888,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_menuIcon2MouseClicked
 
     private void menuIcon1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon1MouseClicked
-        timer.stop();
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -2886,12 +2897,8 @@ public class Typeroo extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_menuIcon1MouseClicked
 
-    public void onMusicSettingsMenuClosed() {
-        timer.start(); // Start the timer when the music settings menu is closed
-    }
-    
     private void menuIcon3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon3MouseClicked
-        timer.stop();
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -2901,7 +2908,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_menuIcon3MouseClicked
 
     private void menuIcon4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_menuIcon4MouseClicked
-        timer.stop();
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -2962,11 +2969,6 @@ public class Typeroo extends javax.swing.JFrame {
 
         // Convert the list of words to a String array
         return wordList.toArray(new String[0]);
-    }
-    
-    public void windowClosing(WindowEvent e) {
-        // Exit the application when the main frame is closed
-        System.exit(0);
     }
     
     public static void playOriginalMusic() throws LineUnavailableException, IOException, UnsupportedAudioFileException{
