@@ -81,14 +81,22 @@ public class Typeroo extends javax.swing.JFrame {
             int pos = random.nextInt(randomWord.length());
             StringBuilder newText = new StringBuilder(randomWord);
 
-            if (randomWord.length() > 7) {
-                int pos1 = random.nextInt(randomWord.length());
-                int pos2 = random.nextInt(randomWord.length());
-                
-                newText.replace(pos1, pos1 + 1, " _ ");
-                newText.replace(pos2, pos2 + 1, " _ ");
-            } else {
-                newText.replace(pos, pos + 1, " _ ");
+            // Determine the number of underscores based on the selected difficulty
+            int numUnderscores = 1;  // Default number of underscores
+            if (isHardMode) {
+                numUnderscores = 3;  // For hard difficulty, use 3 underscores
+            } else if (randomWord.length() > 8) {
+                numUnderscores = 2;  // For words longer than 7 characters, use 2 underscores
+            }
+
+            // Replace random positions with underscores
+            for (int i = 0; i < numUnderscores; i++) {
+                int underscorePos = random.nextInt(randomWord.length());
+                if (newText.charAt(underscorePos) != ' ') {
+                    newText.replace(underscorePos, underscorePos + 1, " _ ");
+                } else {
+                    i--;  // If the selected position contains a space, retry
+                }
             }
             
             jLabel21.setText(newText.toString());
@@ -197,6 +205,7 @@ public class Typeroo extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 isEasyMode = false;
+                isHardMode = false;
                 countdown = averageTime;
                 averageLives = 3;  // Set lives for average mode
                 hints = 3;  // Set hints for average mode (optional)
@@ -210,22 +219,13 @@ public class Typeroo extends javax.swing.JFrame {
             public void actionPerformed(ActionEvent e) {
                 isEasyMode = false;
                 isHardMode = true;
-                countdown = 10;
+                countdown = difficultTime;
                 averageLives = 3;  // Set lives for average mode
                 hints = 0;  // Set hints for average mode (optional)
                 words = readWordsFromFile("hard_words.txt", "hard");
                 startTimer();
             }
         });
-
-        // Set initial countdown based on the selected difficulty
-        if (isEasyMode) {
-            countdown = easyTime;
-        } else if (isHardMode) {
-            countdown = 10;
-        }else{
-            countdown = averageTime;
-        }
     }
 
     // Method to start the timer
@@ -253,14 +253,13 @@ public class Typeroo extends javax.swing.JFrame {
             timer.stop();
             return; // Exit the actionPerformed method
         }
-       checkWords();
+        resetTimerCountdown();
+        checkWords();
         lives--;
         displayHUD();
         displayWords();
         timer.stop();
         if (lives > 0) {
-            // Reset countdown and restart timer
-            resetTimerCountdown();
             displayHUD();
             timer.start();
         } else {
@@ -2593,25 +2592,7 @@ public class Typeroo extends javax.swing.JFrame {
             playEasyModeMusic();
             applyVolumeToAllModes();
         }else{
-            difficultyFrame.setVisible(true);
-                // Reset timer
-            if (timer != null) {
-                timer.stop();
-            }
-
-            // Reset countdown based on selected difficulty
-            if (isEasyMode) {
-                countdown = easyTime;
-            } else if (isHardMode) {
-                countdown = difficultTime;
-            } else {
-                countdown = averageTime;
-            }
-
-            // Reset score, lives, and other game-related variables
-            score = 0;
-            lives = easyLives;
-            hints = 0;
+            resetGameState();
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -2642,25 +2623,17 @@ public class Typeroo extends javax.swing.JFrame {
             playModerateModeMusic();
             applyVolumeToAllModes();
         }else{
-            difficultyFrame.setVisible(true);
-                // Reset timer
-            if (timer != null) {
-                timer.stop();
+            resetGameState();
+            try {
+                if (clip != null && clip.isRunning()){
+                    clip.start();
+                }else{
+                    playOriginalMusic();
+                }
+                applyVolumeToAllModes();
+            } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
+                Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            // Reset countdown based on selected difficulty
-            if (isEasyMode) {
-                countdown = easyTime;
-            } else if (isHardMode) {
-                countdown = difficultTime;
-            } else {
-                countdown = averageTime;
-            }
-
-            // Reset score, lives, and other game-related variables
-            score = 0;
-            lives = easyLives;
-            hints = 0;
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -2669,37 +2642,29 @@ public class Typeroo extends javax.swing.JFrame {
         if (userName3 != null && !userName3.trim().isEmpty()){
             stopAllMusicClips();
             difficultyFrame.dispose();
-            middleDifficultyFrame.setVisible(true);
+            hardDifficultyFrame.setVisible(true);
             score = 0;
             index = 0;
             lives = 3;
             hints = 4;
-            countdown = averageTime;
+            countdown = difficultTime;
             timer.start();
             displayHUD();
             displayWords();
             playHardModeMusic();
             applyVolumeToAllModes();
         }else{
-            difficultyFrame.setVisible(true);
-                // Reset timer
-            if (timer != null) {
-                timer.stop();
+            resetGameState();
+            try {
+                if (clip != null && clip.isRunning()){
+                    clip.start();
+                }else{
+                    playOriginalMusic();
+                }
+                applyVolumeToAllModes();
+            } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
+                Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-            // Reset countdown based on selected difficulty
-            if (isEasyMode) {
-                countdown = easyTime;
-            } else if (isHardMode) {
-                countdown = difficultTime;
-            } else {
-                countdown = averageTime;
-            }
-
-            // Reset score, lives, and other game-related variables
-            score = 0;
-            lives = easyLives;
-            hints = 0;
         }
     }//GEN-LAST:event_jButton7ActionPerformed
 
@@ -2876,6 +2841,12 @@ public class Typeroo extends javax.swing.JFrame {
         gameOverDialog1.dispose();
         difficultyFrame.setVisible(true);
         resetGameState();
+        try {
+            playOriginalMusic();
+            applyVolumeToAllModes();
+        } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
+            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_playAgain2ActionPerformed
 
     private void resetGameState() {
@@ -2905,27 +2876,15 @@ public class Typeroo extends javax.swing.JFrame {
 
         // Reset HUD display
         displayHUD();
-        try {
-            playOriginalMusic();
-            applyVolumeToAllModes();
-            if (clip2 != null) {
-                clip2.stop();
-               }
-            if (clip3 != null) {
-                clip3.stop();
-               }
-            if (clip4 != null) {
-                clip4.stop();
-               }
-            if (clip5 != null) {
-                clip5.stop();
-                }
-        } catch (LineUnavailableException ex) {
-            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedAudioFileException ex) {
-            Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+
+        // Stop all music clips
+        if (!difficultyFrame.isVisible()) {
+            try {
+                playOriginalMusic();
+                applyVolumeToAllModes();
+            } catch (LineUnavailableException | IOException | UnsupportedAudioFileException ex) {
+                Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
 
