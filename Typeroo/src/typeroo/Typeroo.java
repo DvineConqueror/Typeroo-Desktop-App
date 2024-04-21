@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import javax.sound.sampled.*;
 
 public class Typeroo extends javax.swing.JFrame {
@@ -46,118 +47,232 @@ public class Typeroo extends javax.swing.JFrame {
     boolean isEasyMode;
     boolean isHardMode;
     private Timer timer;
-    private float currentVolume = 0.1f;
+    private float currentVolume = 1.0f;
     private int countdown;
     private int easyHighScore = 0;
     private int averageHighScore = 0;
     private int hardHighScore = 0;
     private String[] words;
-    private String randomWord;
     private String userName;
     private String userName2;
     private String userName3;
+    private boolean isMuted = false;
+    private String currentWord;
     static Clip clip;
     static Clip clip2;
     static Clip clip3;
     static Clip clip4;
     static Clip clip5;
+    static Clip gameOver;
     static boolean isOriginalMusicPlaying = false;
     Border panel_border = BorderFactory.createMatteBorder(1,1,1,1, Color.black);
     
     
     //Displaying the words
-    public void displayWords(){
-        if (words.length == 0){
-            jLabel21.setText("--Word--");
-            jLabel37.setText("--Word--");
-            jLabel42.setText("--Word--");
-            jTextField_Guess.setText("Guess");
-            jTextField_Guess1.setText("Guess");
-            jTextField_Guess2.setText("Guess");
-        }else{
-            Random random = new Random();
-            randomWord = words[random.nextInt(words.length)];
-
-            int pos = random.nextInt(randomWord.length());
-            StringBuilder newText = new StringBuilder(randomWord);
-
-            // Determine the number of underscores based on the selected difficulty
-            int numUnderscores = 1;  // Default number of underscores
-            if (isHardMode) {
-                numUnderscores = 3;  // For hard difficulty, use 3 underscores
-            } else if (randomWord.length() > 8) {
-                numUnderscores = 2;  // For words longer than 7 characters, use 2 underscores
+    private void displayWords() {
+        if (words == null || words.length == 0) {
+            displayEmptyWordLabels();
+        } else {
+            if (currentWord == null) {
+                currentWord = getRandomWord(); // Generate the random word only if it hasn't been set yet
             }
-
-            // Replace random positions with underscores
-            for (int i = 0; i < numUnderscores; i++) {
-                int underscorePos = random.nextInt(randomWord.length());
-                if (newText.charAt(underscorePos) != ' ') {
-                    newText.replace(underscorePos, underscorePos + 1, " _ ");
+            if (currentWord != null) {
+                String[] parts = currentWord.split(" - ");
+                if (parts.length > 0) {
+                    String word = parts[0];
+                    String obfuscatedWord = obfuscateWord(word);
+                    displayWordLabels(obfuscatedWord);
                 } else {
-                    i--;  // If the selected position contains a space, retry
+                    // Handle case where currentWord does not contain the expected format
+                    System.out.println("Error: currentWord does not contain expected format");
                 }
+            } else {
+                // Handle case where currentWord is null
+                System.out.println("Error: currentWord is null");
             }
-            
-            jLabel21.setText(newText.toString());
-            jLabel37.setText(newText.toString());
-            jLabel42.setText(newText.toString());
+        }
+    }
+
+
+    private void displayEmptyWordLabels() {
+        String emptyWord = "--Word--";
+        String guessText = "Guess";
+        jLabel21.setText(emptyWord);
+        jLabel37.setText(emptyWord);
+        jLabel42.setText(emptyWord);
+        jTextField_Guess.setText(guessText);
+        jTextField_Guess1.setText(guessText);
+        jTextField_Guess2.setText(guessText);
+    }
+
+    private String getRandomWord() {
+        Random random = new Random();
+        return words[random.nextInt(words.length)];
+    }
+    
+    private String getCurrentWord() {
+        String[] parts = currentWord.split(" - ");
+        if (parts.length > 0) {
+            return parts[0]; // Extract only the word part
+        }
+        return null;
+    }
+
+    private String obfuscateWord(String word) {
+        StringBuilder newText = new StringBuilder(word);
+        int numUnderscores = getNumUnderscores(word);
+        Random random = new Random();
+
+        for (int i = 0; i < numUnderscores; i++) {
+            int underscorePos = getValidUnderscorePosition(random, word, newText);
+            newText.replace(underscorePos, underscorePos + 1, " _ ");
+        }
+
+        return newText.toString();
+    }
+
+    private int getNumUnderscores(String word) {
+        if (isHardMode) {
+            return 3;
+        } else if (word.length() > 8) {
+            return 2;
+        } else {
+            return 1;
+        }
+    }
+
+    private int getValidUnderscorePosition(Random random, String word, StringBuilder newText) {
+        int underscorePos;
+        do {
+            underscorePos = random.nextInt(word.length());
+        } while (newText.charAt(underscorePos) == ' ');
+        return underscorePos;
+    }
+
+    private void displayWordLabels(String obfuscatedWord) {
+        jLabel21.setText(obfuscatedWord);
+        jLabel37.setText(obfuscatedWord);
+        jLabel42.setText(obfuscatedWord);
+    }
+
+    public void checkWords() {
+        String userGuess = getUserGuess().toLowerCase();
+        String[] parts = currentWord.split(" - ");
+        String word = parts[0].toLowerCase(); // Extract only the word part
+
+        if (userGuess.equals(word)) {
+            handleCorrectGuess();
+            currentWord = null; // Reset currentWord after correct guess
+        } else {
+            handleIncorrectGuess();
+            currentWord = null; // Reset currentWord after incorrect guess
+        }
+
+        clearGuessFields();
+        displayHUD();
+    }
+    
+    private String getUserGuess() {
+        String guess1 = jTextField_Guess.getText().toLowerCase();
+        String guess2 = jTextField_Guess1.getText().toLowerCase();
+        String guess3 = jTextField_Guess2.getText().toLowerCase();
+
+        return Stream.of(guess1, guess2, guess3)
+                     .filter(guess -> !guess.isEmpty())
+                     .findFirst()
+                     .orElse("");
+    }
+
+    private void handleCorrectGuess() {
+        timer.stop();
+        JOptionPane.showMessageDialog(null, "Correct!!!");
+        resetCountdownForDifficulty();
+        incrementScore();
+        updateHighScoreAndLeaderboard();
+        displayUpdatedCountdown();
+        timer.start();
+    }
+
+    private void resetCountdownForDifficulty() {
+        if (isEasyMode) {
+            countdown = easyTime;
+        } else if (isHardMode) {
+            countdown = difficultTime;
+        } else {
+            countdown = averageTime;
+        }
+    }
+
+    private void incrementScore() {
+        score++;
+        newScore = score;
+    }
+
+    private void updateHighScoreAndLeaderboard() {
+        if (newScore > easyHighScore && isEasyMode) {
+            easyHighScore = score;
+            nameLeaderboard.setText(userName);
+        } else if (newScore > averageHighScore && !isEasyMode && !isHardMode) {
+            averageHighScore = score;
+            nameLeaderboard2.setText(userName2);
+        } else if (newScore > hardHighScore && isHardMode) {
+            hardHighScore = score;
+            nameLeaderboard3.setText(userName3);
+        }
+    }
+
+    private void displayUpdatedCountdown() {
+        easyTimer1.setText(Integer.toString(countdown));
+        average_timer.setText(Integer.toString(countdown));
+        difficultTimer1.setText(Integer.toString(countdown));
+    }
+
+    private void handleIncorrectGuess() {
+        timer.stop();
+        JOptionPane.showMessageDialog(null, "Incorrect Word!", "Swift Typers", JOptionPane.ERROR_MESSAGE);
+        resetCountdownForDifficulty();
+        updateHighScore();
+        decrementLives();
+        timer.start();
+
+        if (averageLives == 0) {
+            gameOver();
         }
     }
     
-    //Display if user correctly guessed the word
-    public void checkWords() {
-        if (jTextField_Guess.getText().toLowerCase().equals(randomWord) || jTextField_Guess1.getText().toLowerCase().equals(randomWord) || jTextField_Guess2.getText().toLowerCase().equals(randomWord)) {
-            timer.stop();
-            JOptionPane.showMessageDialog(null, "Correct!!!");
-            if (isEasyMode) {
-                countdown = easyTime;
-            } else if (isHardMode) {
-                countdown = difficultTime;
-            } else {
-                countdown = averageTime;
-            }
-            score++;
-            newScore = score;
-            if (newScore > easyHighScore && isEasyMode) {
-                easyHighScore = score;
-                nameLeaderboard.setText(userName);
-            } else if (newScore > averageHighScore && !isEasyMode && !isHardMode) {
-                averageHighScore = score;
-                nameLeaderboard2.setText(userName2);
-            } else if (newScore > hardHighScore && isHardMode) {
-                hardHighScore = score;
-                nameLeaderboard3.setText(userName3);
-            }
-            easyTimer1.setText(Integer.toString(countdown));  // Update display immediately
-            average_timer.setText(Integer.toString(countdown));
-            difficultTimer1.setText(Integer.toString(countdown));
-            timer.start();
-        } else {
-            timer.stop();
-            JOptionPane.showMessageDialog(null, "Incorrect!!! The word was: " + randomWord);
-            if (isEasyMode) {
-                countdown = easyTime;
-            } else if (isHardMode) {
-                countdown = difficultTime;
-            } else {
-                countdown = averageTime;
-            } // Reset to average time on wrong guess (all difficulties)
-            
-            if (score > easyHighScore && isEasyMode) {
-                easyHighScore = score;
-            } else if (score > averageHighScore && !isEasyMode && !isHardMode) {
-                averageHighScore = score;
-            } else if (score > hardHighScore && isHardMode) {
-                hardHighScore = score;
-            }
-            averageLives--;
-            timer.start();
-            if (averageLives == 0) {
-                gameOver();
-            }
+    private void handleTimeExpired(){
+        timer.stop();
+        handleRunOutOfTime();
+    }
+    
+    private void handleRunOutOfTime(){
+        JOptionPane.showMessageDialog(null, "You ran out of time!", "Swift Typers", JOptionPane.ERROR_MESSAGE);
+        resetCountdownForDifficulty();
+        currentWord = null; // Reset currentWord after incorrect guess
+        updateHighScore();
+        decrementLives();
+        timer.start();
+
+        if (averageLives == 0) {
+            gameOver();
         }
-        displayHUD();
+    }
+
+    private void updateHighScore() {
+        if (score > easyHighScore && isEasyMode) {
+            easyHighScore = score;
+        } else if (score > averageHighScore && !isEasyMode && !isHardMode) {
+            averageHighScore = score;
+        } else if (score > hardHighScore && isHardMode) {
+            hardHighScore = score;
+        }
+    }
+
+    private void decrementLives() {
+        averageLives--;
+    }
+
+    private void clearGuessFields() {
         jTextField_Guess.setText("");
         jTextField_Guess2.setText("");
         jTextField_Guess1.setText("");
@@ -165,6 +280,12 @@ public class Typeroo extends javax.swing.JFrame {
     
     public Typeroo() {
         initComponents();
+        setWindowLocations();
+        setBorders();
+        setDifficultyListeners();
+    }
+
+    private void setWindowLocations() {
         this.setLocationRelativeTo(null);
         howToFrame.setLocationRelativeTo(null);
         difficultyFrame.setLocationRelativeTo(null);
@@ -174,58 +295,70 @@ public class Typeroo extends javax.swing.JFrame {
         gameOverDialog1.setLocationRelativeTo(null);
         leaderBoardDialog.setLocationRelativeTo(null);
         musicSettings.setLocationRelativeTo(null);
-        jPanel4.setBorder(panel_border);
-        jPanel6.setBorder(panel_border);
-        jPanel7.setBorder(panel_border);
+    }
 
-        if (isEasyMode) {
-            words = readWordsFromFile("easy_words.txt", "easy");
-        } else if (isHardMode) {
-            words = readWordsFromFile("hard_words.txt", "hard");
-        } else {
-            words = readWordsFromFile("average_words.txt", "average");
+    private void setBorders() {
+        Border panelBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK);
+        jPanel4.setBorder(panelBorder);
+        jPanel6.setBorder(panelBorder);
+        jPanel7.setBorder(panelBorder);
+    }
+
+    private void setDifficultyListeners() {
+        jButton2.addActionListener(new EasyDifficultyListener());
+        jButton6.addActionListener(new AverageDifficultyListener());
+        jButton7.addActionListener(new HardDifficultyListener());
+    }
+
+    private class EasyDifficultyListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setEasyDifficulty();
+            startTimer();
         }
 
-        displayWords();
+        private void setEasyDifficulty() {
+            isEasyMode = true;
+            isHardMode = false;
+            countdown = easyTime;
+            averageLives = easyLives;
+            hints = 5;
+            words = readWordsFromJSONFile("easy_words.json", "easy");
+        }
+    }
 
-        jButton2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isEasyMode = true;
-                isHardMode = false;
-                countdown = easyTime;
-                averageLives = easyLives;  // Set lives for easy mode
-                hints = 5;  // Set hints for easy mode
-                words = readWordsFromFile("easy_words.txt", "easy");
-                startTimer();
-            }
-        });
+    private class AverageDifficultyListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setAverageDifficulty();
+            startTimer();
+        }
 
-        jButton6.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isEasyMode = false;
-                isHardMode = false;
-                countdown = averageTime;
-                averageLives = 3;  // Set lives for average mode
-                hints = 3;  // Set hints for average mode (optional)
-                words = readWordsFromFile("average_words.txt", "average");
-                startTimer();
-            }
-        });
+        private void setAverageDifficulty() {
+            isEasyMode = false;
+            isHardMode = false;
+            countdown = averageTime;
+            averageLives = 3;
+            hints = 3;
+            words = readWordsFromJSONFile("average_words.json", "average");
+        }
+    }
 
-        jButton7.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                isEasyMode = false;
-                isHardMode = true;
-                countdown = difficultTime;
-                averageLives = 3;  // Set lives for average mode
-                hints = 0;  // Set hints for average mode (optional)
-                words = readWordsFromFile("hard_words.txt", "hard");
-                startTimer();
-            }
-        });
+    private class HardDifficultyListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setHardDifficulty();
+            startTimer();
+        }
+
+        private void setHardDifficulty() {
+            isEasyMode = false;
+            isHardMode = true;
+            countdown = difficultTime;
+            averageLives = 3;
+            hints = 0;
+            words = readWordsFromJSONFile("hard_words.json", "hard");
+        }
     }
 
     // Method to start the timer
@@ -240,6 +373,7 @@ public class Typeroo extends javax.swing.JFrame {
                     difficultTimer1.setText(Integer.toString(countdown));
                 } else {
                     // Handle timer expiration
+                    handleTimeExpired();
                     handleTimerExpiration();
                 }
             }
@@ -254,7 +388,6 @@ public class Typeroo extends javax.swing.JFrame {
             return; // Exit the actionPerformed method
         }
         resetTimerCountdown();
-        checkWords();
         lives--;
         displayHUD();
         displayWords();
@@ -291,6 +424,7 @@ public class Typeroo extends javax.swing.JFrame {
         hints = 0;  // Reset hints to 0
         try {
             // Play game over sound
+            gameOverMusic();
             InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/Game_Over_Sound.wav");
             AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
             Clip clip = AudioSystem.getClip();
@@ -395,7 +529,7 @@ public class Typeroo extends javax.swing.JFrame {
         jButton_submit1 = new javax.swing.JButton();
         hintButton1 = new javax.swing.JButton();
         jPanel21 = new javax.swing.JPanel();
-        exitPanel7 = new javax.swing.JLabel();
+        homePanel1 = new javax.swing.JLabel();
         jLabel33 = new javax.swing.JLabel();
         exitPanel8 = new javax.swing.JLabel();
         label_lives1 = new javax.swing.JLabel();
@@ -414,7 +548,7 @@ public class Typeroo extends javax.swing.JFrame {
         jButton_submit = new javax.swing.JButton();
         hintButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        exitPanel3 = new javax.swing.JLabel();
+        homePanel2 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         exitPanel2 = new javax.swing.JLabel();
         label_lives = new javax.swing.JLabel();
@@ -433,7 +567,7 @@ public class Typeroo extends javax.swing.JFrame {
         jTextField_Guess2 = new javax.swing.JTextField();
         jButton_submit2 = new javax.swing.JButton();
         jPanel24 = new javax.swing.JPanel();
-        exitPanel9 = new javax.swing.JLabel();
+        homePanel3 = new javax.swing.JLabel();
         jLabel38 = new javax.swing.JLabel();
         exitPanel10 = new javax.swing.JLabel();
         label_lives2 = new javax.swing.JLabel();
@@ -483,6 +617,8 @@ public class Typeroo extends javax.swing.JFrame {
         musicLabel = new javax.swing.JLabel();
         jLabel56 = new javax.swing.JLabel();
         jSlider1 = new javax.swing.JSlider();
+        jLabel22 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
         jLabel54 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
@@ -578,7 +714,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("Typeroo Word Game");
+        jLabel5.setText("Swift Typers Game");
 
         jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel32.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -714,7 +850,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel29.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel29.setForeground(new java.awt.Color(255, 255, 255));
         jLabel29.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel29.setText("Typeroo Word Game");
+        jLabel29.setText("Swift Typers Game");
 
         exitPanel5.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
         exitPanel5.setForeground(new java.awt.Color(255, 255, 255));
@@ -1099,7 +1235,6 @@ public class Typeroo extends javax.swing.JFrame {
 
         jTextField_Guess1.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
         jTextField_Guess1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField_Guess1.setText("Guess");
         jTextField_Guess1.setBorder(null);
         jTextField_Guess1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1141,14 +1276,14 @@ public class Typeroo extends javax.swing.JFrame {
 
         jPanel21.setBackground(new java.awt.Color(71, 71, 71));
 
-        exitPanel7.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
-        exitPanel7.setForeground(new java.awt.Color(255, 255, 255));
-        exitPanel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
-        exitPanel7.setText(" X");
-        exitPanel7.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        exitPanel7.addMouseListener(new java.awt.event.MouseAdapter() {
+        homePanel1.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        homePanel1.setForeground(new java.awt.Color(255, 255, 255));
+        homePanel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        homePanel1.setText(" X");
+        homePanel1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        homePanel1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                exitPanel7MouseClicked(evt);
+                homePanel1MouseClicked(evt);
             }
         });
 
@@ -1156,7 +1291,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel33.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel33.setForeground(new java.awt.Color(255, 255, 255));
         jLabel33.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel33.setText("Typeroo Word Game");
+        jLabel33.setText("Swift Typers Game");
 
         exitPanel8.setBackground(new java.awt.Color(112, 112, 112));
         exitPanel8.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
@@ -1175,7 +1310,7 @@ public class Typeroo extends javax.swing.JFrame {
             jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel21Layout.createSequentialGroup()
                 .addGap(44, 44, 44)
-                .addComponent(exitPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(homePanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                 .addComponent(jLabel33, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(65, 65, 65)
@@ -1193,7 +1328,7 @@ public class Typeroo extends javax.swing.JFrame {
                             .addComponent(exitPanel8)))
                     .addGroup(jPanel21Layout.createSequentialGroup()
                         .addGap(25, 25, 25)
-                        .addComponent(exitPanel7)))
+                        .addComponent(homePanel1)))
                 .addContainerGap(31, Short.MAX_VALUE))
         );
 
@@ -1349,7 +1484,6 @@ public class Typeroo extends javax.swing.JFrame {
 
         jTextField_Guess.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
         jTextField_Guess.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField_Guess.setText("Guess");
         jTextField_Guess.setBorder(null);
         jTextField_Guess.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1391,14 +1525,14 @@ public class Typeroo extends javax.swing.JFrame {
 
         jPanel1.setBackground(new java.awt.Color(71, 71, 71));
 
-        exitPanel3.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
-        exitPanel3.setForeground(new java.awt.Color(255, 255, 255));
-        exitPanel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
-        exitPanel3.setText(" X");
-        exitPanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        exitPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
+        homePanel2.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        homePanel2.setForeground(new java.awt.Color(255, 255, 255));
+        homePanel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        homePanel2.setText(" X");
+        homePanel2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        homePanel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                exitPanel3MouseClicked(evt);
+                homePanel2MouseClicked(evt);
             }
         });
 
@@ -1406,7 +1540,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel18.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel18.setForeground(new java.awt.Color(255, 255, 255));
         jLabel18.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel18.setText("Typeroo Word Game");
+        jLabel18.setText("Swift Typers Game");
 
         exitPanel2.setBackground(new java.awt.Color(112, 112, 112));
         exitPanel2.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
@@ -1425,7 +1559,7 @@ public class Typeroo extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(44, 44, 44)
-                .addComponent(exitPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(homePanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                 .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(65, 65, 65)
@@ -1439,7 +1573,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(7, 7, 7)
-                        .addComponent(exitPanel3))
+                        .addComponent(homePanel2))
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel18, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(exitPanel2)))
@@ -1624,7 +1758,6 @@ public class Typeroo extends javax.swing.JFrame {
 
         jTextField_Guess2.setFont(new java.awt.Font("Tw Cen MT", 0, 36)); // NOI18N
         jTextField_Guess2.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextField_Guess2.setText("Guess");
         jTextField_Guess2.setBorder(null);
         jTextField_Guess2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -1655,14 +1788,14 @@ public class Typeroo extends javax.swing.JFrame {
 
         jPanel24.setBackground(new java.awt.Color(71, 71, 71));
 
-        exitPanel9.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
-        exitPanel9.setForeground(new java.awt.Color(255, 255, 255));
-        exitPanel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
-        exitPanel9.setText(" X");
-        exitPanel9.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        exitPanel9.addMouseListener(new java.awt.event.MouseAdapter() {
+        homePanel3.setFont(new java.awt.Font("Tw Cen MT", 1, 24)); // NOI18N
+        homePanel3.setForeground(new java.awt.Color(255, 255, 255));
+        homePanel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HomeButton--.png"))); // NOI18N
+        homePanel3.setText(" X");
+        homePanel3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        homePanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                exitPanel9MouseClicked(evt);
+                homePanel3MouseClicked(evt);
             }
         });
 
@@ -1670,7 +1803,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel38.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel38.setForeground(new java.awt.Color(255, 255, 255));
         jLabel38.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel38.setText("Typeroo Word Game");
+        jLabel38.setText("Swift Typers Game");
 
         exitPanel10.setBackground(new java.awt.Color(112, 112, 112));
         exitPanel10.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
@@ -1689,7 +1822,7 @@ public class Typeroo extends javax.swing.JFrame {
             jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel24Layout.createSequentialGroup()
                 .addGap(44, 44, 44)
-                .addComponent(exitPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(homePanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 84, Short.MAX_VALUE)
                 .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(65, 65, 65)
@@ -1703,7 +1836,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addGroup(jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel24Layout.createSequentialGroup()
                         .addGap(7, 7, 7)
-                        .addComponent(exitPanel9))
+                        .addComponent(homePanel3))
                     .addGroup(jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabel38, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(exitPanel10)))
@@ -2234,33 +2367,53 @@ public class Typeroo extends javax.swing.JFrame {
             }
         });
 
+        jLabel22.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
+        jLabel22.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel22.setText("100");
+
+        jLabel23.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel23.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/volume.png"))); // NOI18N
+        jLabel23.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel23.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel23MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel33Layout = new javax.swing.GroupLayout(jPanel33);
         jPanel33.setLayout(jPanel33Layout);
         jPanel33Layout.setHorizontalGroup(
             jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel33Layout.createSequentialGroup()
+                .addContainerGap(36, Short.MAX_VALUE)
+                .addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel33Layout.createSequentialGroup()
+                        .addComponent(jLabel23)
+                        .addGap(32, 32, 32)
+                        .addComponent(musicLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel22)))
+                .addGap(101, 101, 101))
             .addGroup(jPanel33Layout.createSequentialGroup()
-                .addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel33Layout.createSequentialGroup()
-                        .addGap(73, 73, 73)
-                        .addComponent(jLabel56))
-                    .addGroup(jPanel33Layout.createSequentialGroup()
-                        .addGap(124, 124, 124)
-                        .addComponent(musicLabel))
-                    .addGroup(jPanel33Layout.createSequentialGroup()
-                        .addGap(98, 98, 98)
-                        .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(102, Short.MAX_VALUE))
+                .addGap(73, 73, 73)
+                .addComponent(jLabel56)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel33Layout.setVerticalGroup(
             jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel33Layout.createSequentialGroup()
+            .addGroup(jPanel33Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
                 .addComponent(jLabel56)
-                .addGap(5, 5, 5)
-                .addComponent(musicLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(musicLabel)
+                        .addComponent(jLabel22))
+                    .addComponent(jLabel23))
+                .addGap(26, 26, 26)
                 .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(80, Short.MAX_VALUE))
+                .addContainerGap(66, Short.MAX_VALUE))
         );
 
         jLabel54.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
@@ -2320,7 +2473,7 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel5.setBackground(new java.awt.Color(37, 35, 35));
         jPanel5.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Typeroo-Logoasdasd.png"))); // NOI18N
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/SwiftTypers.png"))); // NOI18N
 
         jButton1.setBackground(new java.awt.Color(71, 71, 71));
         jButton1.setFont(new java.awt.Font("Tw Cen MT", 1, 36)); // NOI18N
@@ -2347,7 +2500,7 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("Typeroo Word Game");
+        jLabel1.setText("Swift Typers Game");
 
         exitPanel1.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
         exitPanel1.setForeground(new java.awt.Color(255, 255, 255));
@@ -2376,9 +2529,9 @@ public class Typeroo extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel10Layout.createSequentialGroup()
                 .addContainerGap(73, Short.MAX_VALUE)
                 .addComponent(howtoPlayPanel)
-                .addGap(93, 93, 93)
+                .addGap(80, 80, 80)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 474, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(60, 60, 60)
+                .addGap(73, 73, 73)
                 .addComponent(exitPanel1)
                 .addGap(49, 49, 49))
         );
@@ -2406,40 +2559,43 @@ public class Typeroo extends javax.swing.JFrame {
         jPanel5Layout.setHorizontalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addGap(67, 67, 67)
-                .addComponent(menuIcon)
-                .addGap(151, 151, 151)
-                .addComponent(jLabel2)
+            .addGroup(jPanel5Layout.createSequentialGroup()
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(67, 67, 67)
+                        .addComponent(menuIcon)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(217, 217, 217)
+                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(76, 76, 76))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                                .addComponent(jLabel7)
+                                .addGap(10, 10, 10))
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(265, 265, 265))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(199, 199, 199))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                        .addComponent(jLabel6)
-                        .addGap(189, 189, 189))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel5Layout.createSequentialGroup()
                 .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(menuIcon))
-                .addGap(12, 12, 12)
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(menuIcon))
+                    .addGroup(jPanel5Layout.createSequentialGroup()
+                        .addGap(28, 28, 28)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(32, 32, 32)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(311, Short.MAX_VALUE))
+                .addContainerGap(275, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -2499,30 +2655,27 @@ public class Typeroo extends javax.swing.JFrame {
         jTextField_Guess.setText("");
     }//GEN-LAST:event_jTextField_GuessMouseClicked
 
+    private void exitGame() {
+        stopAllMusicClips();
+        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
+        System.exit(0);
+    }
+    
     private void exitPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel1MouseClicked
         // To Close
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel1MouseClicked
 
     private void hintButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hintButtonActionPerformed
-        timer.stop();
-        if (hints > 0) {
-        hints--;
-        JOptionPane.showMessageDialog(null, "The word is " + randomWord + "\nYour hints are only: " + hints);
-        }
-        if (hints == 0) {
-            JOptionPane.showMessageDialog(null, "All of your hints are used!!!");
-        }
-        timer.start();
+        getHint();
     }//GEN-LAST:event_hintButtonActionPerformed
 
     private void exitPanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel2MouseClicked
         timer.stop();
-        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel2MouseClicked
 
-    private void exitPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel3MouseClicked
+    private void homePanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel2MouseClicked
         if (clip != null) {
             clip.stop();
         }
@@ -2550,7 +2703,7 @@ public class Typeroo extends javax.swing.JFrame {
         } catch (UnsupportedAudioFileException ex) {
             Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_exitPanel3MouseClicked
+    }//GEN-LAST:event_homePanel2MouseClicked
 
     private void howtoPlayPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_howtoPlayPanelMouseClicked
         this.setVisible(false);
@@ -2597,8 +2750,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void exitPanel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel5MouseClicked
-        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel5MouseClicked
 
     private void backArrowMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_backArrowMouseClicked
@@ -2695,19 +2847,25 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton_submit1ActionPerformed
 
-    private void hintButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hintButton1ActionPerformed
+    private void getHint(){
         timer.stop();
         if (hints > 0) {
             hints--;
-            JOptionPane.showMessageDialog(null, "The word is " + randomWord + "\nYour hints are only: " + hints);
+            String currentWord = getCurrentWord(); // Get the current word being displayed
+            String description = getWordDescription(currentWord);
+            JOptionPane.showMessageDialog(null, "Hint: " + description + "\nYour hints are only: " + hints);
         }
         if (hints == 0) {
             JOptionPane.showMessageDialog(null, "All of your hints are used!!!");
         }
         timer.start();
+    }
+    
+    private void hintButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hintButton1ActionPerformed
+       getHint();
     }//GEN-LAST:event_hintButton1ActionPerformed
 
-    private void exitPanel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel7MouseClicked
+    private void homePanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel1MouseClicked
         if (clip != null) {
             clip.stop();
         }
@@ -2734,12 +2892,11 @@ public class Typeroo extends javax.swing.JFrame {
         } catch (UnsupportedAudioFileException ex) {
             Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_exitPanel7MouseClicked
+    }//GEN-LAST:event_homePanel1MouseClicked
 
     private void exitPanel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel8MouseClicked
         timer.stop();
-        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel8MouseClicked
 
     private void jTextField_Guess2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField_Guess2MouseClicked
@@ -2764,7 +2921,7 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton_submit2ActionPerformed
 
-    private void exitPanel9MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel9MouseClicked
+    private void homePanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel3MouseClicked
         if (clip != null) {
             clip.stop();
         }
@@ -2779,7 +2936,7 @@ public class Typeroo extends javax.swing.JFrame {
         }
         
         this.setVisible(true);
-        hardDifficultyFrame.setVisible(false);
+        hardDifficultyFrame.dispose();
         timer.stop();
         score = 0;
         try {
@@ -2792,12 +2949,11 @@ public class Typeroo extends javax.swing.JFrame {
         } catch (UnsupportedAudioFileException ex) {
             Logger.getLogger(Typeroo.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_exitPanel9MouseClicked
+    }//GEN-LAST:event_homePanel3MouseClicked
 
     private void exitPanel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel10MouseClicked
         timer.stop();
-        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel10MouseClicked
 
     private void jTextField2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTextField2MouseClicked
@@ -2900,22 +3056,30 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_backArrow1MouseClicked
 
     private void exitPanel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_exitPanel6MouseClicked
-        JOptionPane.showMessageDialog(null, "Thanks for playing!!!");
-        System.exit(0);
+        exitGame();
     }//GEN-LAST:event_exitPanel6MouseClicked
 
+    public int sliderValue; //For the volume value of the slider
+    private float previousVolume;
+    
+    private void updateSliderValue(int value) {
+        sliderValue = value;
+        jLabel22.setText("" + sliderValue); // Update label with current slider value
+    }
+    
     private void jSlider1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSlider1StateChanged
         JSlider source = (JSlider)evt.getSource();
-        if (!source.getValueIsAdjusting()){
-            float sliderValue = (float) source.getValue() / 100.0f;
-            float limitedVolume = Math.min(sliderValue, 0.3f);
-            currentVolume = limitedVolume;
-            applyVolumeToAllModes();
-            
-            if (sliderValue == 100) {
-                setVolume(clip, 1.0f); // Set to default volume
-            }
+        updateSliderValue(source.getValue());
+        currentVolume = sliderValue / 100.0f; // Update currentVolume
+        applyVolumeToAllModes();
+
+        if (sliderValue == 100) {
+            setVolume(clip, 1.0f); // Set to default volume
+        } else {
+            float limitedVolume = Math.min(sliderValue, 30) / 100.0f;
+            setVolume(clip, limitedVolume);
         }
+        updateSliderValue(jSlider1.getValue());
     }//GEN-LAST:event_jSlider1StateChanged
 
     private void applyVolumeToAllModes(){
@@ -2924,6 +3088,7 @@ public class Typeroo extends javax.swing.JFrame {
         setVolume(clip3, currentVolume);
         setVolume(clip4, currentVolume);
         setVolume(clip5, currentVolume);
+        setVolume(gameOver, 0.04f);
     }
     
     private void jLabel54MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel54MouseClicked
@@ -2968,12 +3133,35 @@ public class Typeroo extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_menuIcon4MouseClicked
 
+    private void jLabel23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel23MouseClicked
+        sliderValue = jSlider1.getValue();
+        if (isMuted) {
+            // Restore the previous volume
+            setVolume(clip, previousVolume);
+            isMuted = false;
+            // Update the slider value with the previous volume
+            updateSliderValue((int) (previousVolume * 100));
+        } else {
+            // Store the current volume before muting
+            previousVolume = currentVolume;
+            setVolume(clip, 0.0f);
+            isMuted = true;
+            // Update jLabel22 text to 0
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    jLabel22.setText("0");
+                }
+            });
+        }
+    }//GEN-LAST:event_jLabel23MouseClicked
+
     
     public void setVolume(Clip clip, float volume){ // Corrected parameter list
         if (clip != null) {
             try {
                 FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                float dB = (float) (Math.log(volume) / Math.log(10.0) * 10.0);
+                float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
                 gainControl.setValue(dB);
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -2985,41 +3173,64 @@ public class Typeroo extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     
-    public static String[] readWordsFromFile(String fileName, String difficultyLevel) {
-        List<String> wordList = new ArrayList<>();
-        String filePath = "";
-        
-            switch (difficultyLevel) {
-            case "easy":
-                filePath = "easy_words.txt";
-                break;
-            case "average":
-                filePath = "average_words.txt";
-                break;
-            case "hard":
-                filePath = "hard_words.txt";
-                break;
-            default:
-                System.err.println("Invalid difficulty level: " + difficultyLevel);
-                return new String[0];
+    private String getWordDescription(String word) {
+        // Extracting description from the word list
+        for (String wordEntry : words) {
+            String[] parts = wordEntry.split(" - ");
+            if (parts.length == 2 && parts[0].equalsIgnoreCase(word)) {
+                return parts[1];
+            }
         }
-            
+        return "Description not found";
+    }
+    
+    public static String[] readWordsFromJSONFile(String fileName, String difficultyLevel) {
+        List<String> wordList = new ArrayList<>();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            StringBuilder jsonContent = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                // Split the line into individual words and add them to the list
-                String[] wordsInLine = line.trim().split("\\s+");
-                for (String word : wordsInLine) {
-                    wordList.add(word.toLowerCase());
+                jsonContent.append(line);
+            }
+
+            String jsonString = jsonContent.toString();
+            jsonString = jsonString.trim();
+            if (jsonString.startsWith("{") && jsonString.endsWith("}")) {
+                jsonString = jsonString.substring(1, jsonString.length() - 1);
+            }
+
+            String[] keyValuePairs = jsonString.split(",");
+            for (String pair : keyValuePairs) {
+                String[] keyValue = pair.split(":", 2);
+                if (keyValue.length == 2) { // Check if the array has two elements
+                    String key = keyValue[0].trim().replaceAll("\"", "");
+                    String value = keyValue[1].trim().replaceAll("\"", "");
+                    wordList.add(key.toLowerCase() + " - " + value);
+                } else {
+                    // Handle the case where the pair does not contain a colon separator
+                    System.err.println("Invalid key-value pair: " + pair);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+            System.err.println("Error reading JSON file: " + e.getMessage());
             e.printStackTrace();
         }
 
-        // Convert the list of words to a String array
         return wordList.toArray(new String[0]);
+    }
+    
+    public static void gameOverMusic(){
+        try {
+                InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream("typeroo/resources/Music/game_over.wav");
+                AudioInputStream newAudioStream = AudioSystem.getAudioInputStream(inputStream);
+                gameOver = AudioSystem.getClip(); // Assuming 'clip' is a class-level variable
+                gameOver.open(newAudioStream);
+                gameOver.start();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // Handle any exceptions that might occur during loading/playing the new music
+            }
     }
     
     public static void playOriginalMusic() throws LineUnavailableException, IOException, UnsupportedAudioFileException{
@@ -3124,16 +3335,16 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel exitPanel1;
     private javax.swing.JLabel exitPanel10;
     private javax.swing.JLabel exitPanel2;
-    private javax.swing.JLabel exitPanel3;
     private javax.swing.JLabel exitPanel5;
     private javax.swing.JLabel exitPanel6;
-    private javax.swing.JLabel exitPanel7;
     private javax.swing.JLabel exitPanel8;
-    private javax.swing.JLabel exitPanel9;
     private javax.swing.JDialog gameOverDialog1;
     private javax.swing.JFrame hardDifficultyFrame;
     private javax.swing.JButton hintButton;
     private javax.swing.JButton hintButton1;
+    private javax.swing.JLabel homePanel1;
+    private javax.swing.JLabel homePanel2;
+    private javax.swing.JLabel homePanel3;
     private javax.swing.JFrame howToFrame;
     private javax.swing.JLabel howtoPlayPanel;
     private javax.swing.JButton jButton1;
@@ -3158,6 +3369,8 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
