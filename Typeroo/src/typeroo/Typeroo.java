@@ -297,7 +297,13 @@ public class Typeroo extends javax.swing.JFrame {
 
     private void setWindowLocations() {
         this.setLocationRelativeTo(null);
-        howToFrame.setLocationRelativeTo(null);
+        howToPlay1.setLocationRelativeTo(null);
+        howToPlay2.setLocationRelativeTo(null);
+        howToPlay3.setLocationRelativeTo(null);
+        howToPlay4.setLocationRelativeTo(null);
+        howToPlay5.setLocationRelativeTo(null);
+        howToPlay6.setLocationRelativeTo(null);
+        howToPlay7.setLocationRelativeTo(null);
         difficultyFrame.setLocationRelativeTo(null);
         easyDifficultyFrame.setLocationRelativeTo(null);
         middleDifficultyFrame.setLocationRelativeTo(null);
@@ -311,7 +317,6 @@ public class Typeroo extends javax.swing.JFrame {
         Border panelBorder = BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK);
         jPanel4.setBorder(panelBorder);
         jPanel6.setBorder(panelBorder);
-        jPanel7.setBorder(panelBorder);
     }
 
     private void setDifficultyListeners() {
@@ -489,23 +494,6 @@ public class Typeroo extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        howToFrame = new javax.swing.JFrame();
-        jPanel7 = new javax.swing.JPanel();
-        jPanel8 = new javax.swing.JPanel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
-        jLabel17 = new javax.swing.JLabel();
-        jPanel18 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel32 = new javax.swing.JLabel();
         difficultyFrame = new javax.swing.JFrame();
         jPanel11 = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
@@ -702,7 +690,6 @@ public class Typeroo extends javax.swing.JFrame {
         jLabel96 = new javax.swing.JLabel();
         jLabel97 = new javax.swing.JLabel();
         jLabel98 = new javax.swing.JLabel();
-        jLabel99 = new javax.swing.JLabel();
         jLabel101 = new javax.swing.JLabel();
         jLabel102 = new javax.swing.JLabel();
         jLabel106 = new javax.swing.JLabel();
@@ -718,208 +705,6 @@ public class Typeroo extends javax.swing.JFrame {
         exitPanel1 = new javax.swing.JLabel();
         howtoPlayPanel = new javax.swing.JLabel();
         menuIcon = new javax.swing.JLabel();
-
-        howToFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        howToFrame.setBackground(new java.awt.Color(71, 71, 71));
-        howToFrame.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        howToFrame.setUndecorated(true);
-        howToFrame.setResizable(false);
-        howToFrame.setSize(new java.awt.Dimension(800, 600));
-
-        jPanel8.setBackground(new java.awt.Color(37, 35, 35));
-        jPanel8.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        jLabel8.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel8.setFont(new java.awt.Font("Tw Cen MT", 1, 42)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel8.setText("How to Play?");
-
-        jLabel4.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel4.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel4.setText("1. The game displays a word on the screen.");
-
-        jLabel9.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel9.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel9.setText("2. The player enters the word into a text field.");
-
-        jLabel10.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel10.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel10.setText("displayed word, a new word is shown.");
-
-        jLabel11.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel11.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel11.setText("3. If the typed word matches the ");
-
-        jLabel12.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel12.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel12.setText("5. The game ends if the player chooses to quit");
-
-        jLabel13.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel13.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel13.setText("4. If the typed word doesn't match, ");
-
-        jLabel14.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel14.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel14.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel14.setText("a dialog box asks if the player wants to play again.");
-
-        jLabel15.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel15.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel15.setText("or types an incorrect word three times in a row.");
-
-        jLabel16.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel16.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel16.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel16.setText("number of correct words typed. ");
-
-        jLabel17.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel17.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
-        jLabel17.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel17.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        jLabel17.setText("6. The player's score is based on the ");
-
-        jPanel18.setBackground(new java.awt.Color(71, 71, 71));
-
-        jLabel5.setBackground(new java.awt.Color(51, 51, 255));
-        jLabel5.setFont(new java.awt.Font("Tw Cen MT", 1, 48)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel5.setText("Swift Typers Game");
-
-        jLabel32.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
-        jLabel32.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jLabel32.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jLabel32MouseClicked(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel18Layout = new javax.swing.GroupLayout(jPanel18);
-        jPanel18.setLayout(jPanel18Layout);
-        jPanel18Layout.setHorizontalGroup(
-            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel18Layout.createSequentialGroup()
-                .addGap(41, 41, 41)
-                .addComponent(jLabel32)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 459, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(152, 152, 152))
-        );
-        jPanel18Layout.setVerticalGroup(
-            jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel18Layout.createSequentialGroup()
-                .addGroup(jPanel18Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel18Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel18Layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addComponent(jLabel32)))
-                .addContainerGap(20, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 760, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jLabel14, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel17, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel13, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel12, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGap(17, 17, 17)
-                        .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanel8Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(191, 191, 191))
-            .addComponent(jPanel18, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addComponent(jPanel18, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(21, 21, 21)
-                .addComponent(jLabel8)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel10)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel13)
-                .addGap(10, 10, 10)
-                .addComponent(jLabel14)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel12)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel15)
-                .addGap(18, 18, 18)
-                .addComponent(jLabel17)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel16, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(107, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel7Layout.createSequentialGroup()
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout howToFrameLayout = new javax.swing.GroupLayout(howToFrame.getContentPane());
-        howToFrame.getContentPane().setLayout(howToFrameLayout);
-        howToFrameLayout.setHorizontalGroup(
-            howToFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        howToFrameLayout.setVerticalGroup(
-            howToFrameLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, howToFrameLayout.createSequentialGroup()
-                .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
 
         difficultyFrame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         difficultyFrame.setBackground(new java.awt.Color(37, 35, 35));
@@ -2605,6 +2390,11 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel109.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel109.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel109.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel109MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel54Layout = new javax.swing.GroupLayout(jPanel54);
         jPanel54.setLayout(jPanel54Layout);
@@ -2722,6 +2512,11 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel72.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel72.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel72.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel72MouseClicked(evt);
+            }
+        });
 
         jLabel59.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel59.setForeground(new java.awt.Color(255, 255, 255));
@@ -2729,6 +2524,16 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel100.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel100.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel100.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel100MouseClicked(evt);
+            }
+        });
+        jLabel100.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jLabel100KeyPressed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel26Layout = new javax.swing.GroupLayout(jPanel26);
         jPanel26.setLayout(jPanel26Layout);
@@ -2861,9 +2666,19 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel75.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel75.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel75.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel75MouseClicked(evt);
+            }
+        });
 
         jLabel76.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel76.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel76.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel76MouseClicked(evt);
+            }
+        });
 
         jLabel62.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel62.setForeground(new java.awt.Color(255, 255, 255));
@@ -2998,9 +2813,19 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel79.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel79.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel79.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel79MouseClicked(evt);
+            }
+        });
 
         jLabel80.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel80.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel80.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel80MouseClicked(evt);
+            }
+        });
 
         jLabel65.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel65.setForeground(new java.awt.Color(255, 255, 255));
@@ -3127,7 +2952,7 @@ public class Typeroo extends javax.swing.JFrame {
                         .addGap(17, 17, 17))))
         );
 
-        jLabel83.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 333.png"))); // NOI18N
+        jLabel83.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 4.png"))); // NOI18N
 
         jLabel84.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel84.setForeground(new java.awt.Color(255, 255, 255));
@@ -3135,9 +2960,19 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel85.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel85.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel85.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel85MouseClicked(evt);
+            }
+        });
 
         jLabel86.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel86.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel86.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel86MouseClicked(evt);
+            }
+        });
 
         jLabel87.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel87.setForeground(new java.awt.Color(255, 255, 255));
@@ -3263,7 +3098,7 @@ public class Typeroo extends javax.swing.JFrame {
                         .addGap(17, 17, 17))))
         );
 
-        jLabel90.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 4.png"))); // NOI18N
+        jLabel90.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 5.png"))); // NOI18N
 
         jLabel91.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel91.setForeground(new java.awt.Color(255, 255, 255));
@@ -3271,9 +3106,19 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel92.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
         jLabel92.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel92.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel92MouseClicked(evt);
+            }
+        });
 
         jLabel93.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
         jLabel93.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel93.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel93MouseClicked(evt);
+            }
+        });
 
         jLabel94.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel94.setForeground(new java.awt.Color(255, 255, 255));
@@ -3322,7 +3167,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(jLabel91)
                 .addGap(12, 12, 12)
                 .addComponent(jLabel94)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(64, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel47Layout = new javax.swing.GroupLayout(jPanel47);
@@ -3344,9 +3189,7 @@ public class Typeroo extends javax.swing.JFrame {
         );
         howToPlay6Layout.setVerticalGroup(
             howToPlay6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, howToPlay6Layout.createSequentialGroup()
-                .addComponent(jPanel47, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jPanel47, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         howToPlay7.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -3400,20 +3243,23 @@ public class Typeroo extends javax.swing.JFrame {
         );
 
         jLabel97.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/BackArrow.png"))); // NOI18N
+        jLabel97.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel97.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel97MouseClicked(evt);
+            }
+        });
 
         jLabel98.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel98.setForeground(new java.awt.Color(255, 255, 255));
         jLabel98.setText("7. The player’s score is based on the number of correct words typed.");
-
-        jLabel99.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/Forward Arrow.png"))); // NOI18N
-        jLabel99.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         jLabel101.setFont(new java.awt.Font("Tw Cen MT", 0, 24)); // NOI18N
         jLabel101.setForeground(new java.awt.Color(255, 255, 255));
         jLabel101.setText("The player can check the highscore of others who played");
         jLabel101.setToolTipText("");
 
-        jLabel102.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 5.png"))); // NOI18N
+        jLabel102.setIcon(new javax.swing.ImageIcon(getClass().getResource("/typeroo/resources/HowToPlay/How To Play 6.png"))); // NOI18N
 
         javax.swing.GroupLayout jPanel51Layout = new javax.swing.GroupLayout(jPanel51);
         jPanel51.setLayout(jPanel51Layout);
@@ -3430,9 +3276,7 @@ public class Typeroo extends javax.swing.JFrame {
                         .addComponent(jLabel97)
                         .addGap(67, 67, 67)
                         .addComponent(jLabel102)
-                        .addGap(68, 68, 68)
-                        .addComponent(jLabel99)
-                        .addGap(89, 89, 89))
+                        .addGap(193, 193, 193))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel51Layout.createSequentialGroup()
                         .addComponent(jLabel98)
                         .addGap(72, 72, 72))))
@@ -3442,10 +3286,6 @@ public class Typeroo extends javax.swing.JFrame {
             .addGroup(jPanel51Layout.createSequentialGroup()
                 .addComponent(jPanel52, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(jPanel51Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel51Layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 216, Short.MAX_VALUE)
-                        .addComponent(jLabel99)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 102, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel51Layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel102)
@@ -3532,7 +3372,7 @@ public class Typeroo extends javax.swing.JFrame {
 
         jLabel6.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel6.setText("Typeroo is a simple yet addictive game that helps ");
+        jLabel6.setText("Swift Typers is a simple yet addictive game that helps ");
 
         jLabel7.setFont(new java.awt.Font("Tw Cen MT", 0, 18)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
@@ -3604,23 +3444,22 @@ public class Typeroo extends javax.swing.JFrame {
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(67, 67, 67)
-                        .addComponent(menuIcon)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel2))
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(217, 217, 217)
-                        .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(76, 76, 76))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(10, 10, 10))
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING))))
+                .addGap(67, 67, 67)
+                .addComponent(menuIcon)
+                .addGap(114, 114, 114)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 356, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addComponent(jLabel7)
+                        .addGap(213, 213, 213))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(276, 276, 276))))
         );
         jPanel5Layout.setVerticalGroup(
             jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -3631,15 +3470,15 @@ public class Typeroo extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(menuIcon))
                     .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
+                        .addGap(29, 29, 29)
                         .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 277, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(32, 32, 32)
+                .addGap(31, 31, 31)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(275, Short.MAX_VALUE))
+                .addContainerGap(269, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
@@ -3751,8 +3590,8 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_homePanel2MouseClicked
 
     private void howtoPlayPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_howtoPlayPanelMouseClicked
-        this.setVisible(false);
-        howToFrame.setVisible(true);
+        this.dispose();
+        howToPlay1.setVisible(true);
     }//GEN-LAST:event_howtoPlayPanelMouseClicked
 
     private void stopAllMusicClips() {
@@ -3865,8 +3704,8 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton7ActionPerformed
 
-    private void goHome(){
-        howToFrame.setVisible(false);
+    private void goHome(JLabel label, JFrame frameToHide){
+        frameToHide.setVisible(false);
         this.setVisible(true);
     }
     
@@ -4204,38 +4043,96 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel23MouseClicked
 
     private void jLabel67MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel67MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel67, howToPlay2);
     }//GEN-LAST:event_jLabel67MouseClicked
 
     private void jLabel74MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel74MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel74, howToPlay3);
     }//GEN-LAST:event_jLabel74MouseClicked
 
     private void jLabel78MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel78MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel78, howToPlay4);
     }//GEN-LAST:event_jLabel78MouseClicked
 
     private void jLabel82MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel82MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel89, howToPlay5);
     }//GEN-LAST:event_jLabel82MouseClicked
 
     private void jLabel89MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel89MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel67, howToPlay6);
     }//GEN-LAST:event_jLabel89MouseClicked
 
     private void jLabel96MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel96MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel96, howToPlay7);
     }//GEN-LAST:event_jLabel96MouseClicked
 
-    private void jLabel32MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel32MouseClicked
-        howToFrame.setVisible(false);
-        this.setVisible(true);
-    }//GEN-LAST:event_jLabel32MouseClicked
-
     private void jLabel104MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel104MouseClicked
-        // TODO add your handling code here:
+        goHome(jLabel104, howToPlay1);
     }//GEN-LAST:event_jLabel104MouseClicked
 
+    private void jLabel97MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel97MouseClicked
+        howToPlay7.dispose();
+        howToPlay6.setVisible(true);
+    }//GEN-LAST:event_jLabel97MouseClicked
+
+    private void jLabel92MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel92MouseClicked
+        howToPlay6.dispose();
+        howToPlay7.setVisible(true);
+    }//GEN-LAST:event_jLabel92MouseClicked
+
+    private void jLabel93MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel93MouseClicked
+        howToPlay6.dispose();
+        howToPlay5.setVisible(true);
+    }//GEN-LAST:event_jLabel93MouseClicked
+
+    private void jLabel85MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel85MouseClicked
+        howToPlay5.dispose();
+        howToPlay6.setVisible(true);
+    }//GEN-LAST:event_jLabel85MouseClicked
+
+    private void jLabel86MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel86MouseClicked
+        howToPlay5.dispose();
+        howToPlay4.setVisible(true);
+    }//GEN-LAST:event_jLabel86MouseClicked
+
+    private void jLabel79MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel79MouseClicked
+        howToPlay4.dispose();
+        howToPlay5.setVisible(true);
+    }//GEN-LAST:event_jLabel79MouseClicked
+
+    private void jLabel80MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel80MouseClicked
+        howToPlay4.dispose();
+        howToPlay3.setVisible(true);
+    }//GEN-LAST:event_jLabel80MouseClicked
+
+    private void jLabel75MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel75MouseClicked
+        howToPlay3.dispose();
+        howToPlay4.setVisible(true);
+    }//GEN-LAST:event_jLabel75MouseClicked
+
+    private void jLabel76MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel76MouseClicked
+        howToPlay3.dispose();
+        howToPlay2.setVisible(true);
+    }//GEN-LAST:event_jLabel76MouseClicked
+
+    private void jLabel100KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jLabel100KeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel100KeyPressed
+
+    private void jLabel100MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel100MouseClicked
+        howToPlay2.dispose();
+        howToPlay3.setVisible(true);
+    }//GEN-LAST:event_jLabel100MouseClicked
+
+    private void jLabel72MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel72MouseClicked
+        howToPlay2.dispose();
+        howToPlay1.setVisible(true);
+    }//GEN-LAST:event_jLabel72MouseClicked
+
+    private void jLabel109MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel109MouseClicked
+        howToPlay1.dispose();
+        howToPlay2.setVisible(true);
+    }//GEN-LAST:event_jLabel109MouseClicked
     
     public void setVolume(Clip clip, float volume){ // Corrected parameter list
         if (clip != null) {
@@ -4425,7 +4322,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel homePanel1;
     private javax.swing.JLabel homePanel2;
     private javax.swing.JLabel homePanel3;
-    private javax.swing.JFrame howToFrame;
     private javax.swing.JFrame howToPlay1;
     private javax.swing.JFrame howToPlay2;
     private javax.swing.JFrame howToPlay3;
@@ -4443,7 +4339,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JButton jButton_submit1;
     private javax.swing.JButton jButton_submit2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel100;
     private javax.swing.JLabel jLabel101;
     private javax.swing.JLabel jLabel102;
@@ -4454,13 +4349,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel107;
     private javax.swing.JLabel jLabel108;
     private javax.swing.JLabel jLabel109;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
@@ -4477,7 +4365,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel30;
     private javax.swing.JLabel jLabel31;
-    private javax.swing.JLabel jLabel32;
     private javax.swing.JLabel jLabel33;
     private javax.swing.JLabel jLabel34;
     private javax.swing.JLabel jLabel35;
@@ -4485,7 +4372,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel42;
@@ -4496,7 +4382,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel47;
     private javax.swing.JLabel jLabel48;
     private javax.swing.JLabel jLabel49;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel50;
     private javax.swing.JLabel jLabel51;
     private javax.swing.JLabel jLabel52;
@@ -4523,7 +4408,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel77;
     private javax.swing.JLabel jLabel78;
     private javax.swing.JLabel jLabel79;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel80;
     private javax.swing.JLabel jLabel81;
     private javax.swing.JLabel jLabel82;
@@ -4534,7 +4418,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel87;
     private javax.swing.JLabel jLabel88;
     private javax.swing.JLabel jLabel89;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JLabel jLabel90;
     private javax.swing.JLabel jLabel91;
     private javax.swing.JLabel jLabel92;
@@ -4544,7 +4427,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel96;
     private javax.swing.JLabel jLabel97;
     private javax.swing.JLabel jLabel98;
-    private javax.swing.JLabel jLabel99;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
@@ -4554,7 +4436,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel15;
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
-    private javax.swing.JPanel jPanel18;
     private javax.swing.JPanel jPanel19;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel20;
@@ -4594,8 +4475,6 @@ public class Typeroo extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel54;
     private javax.swing.JPanel jPanel55;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
