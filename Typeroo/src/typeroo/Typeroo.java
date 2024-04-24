@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -3559,6 +3560,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_exitPanel2MouseClicked
 
     private void homePanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel2MouseClicked
+        timer.stop();
         JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
@@ -3575,7 +3577,6 @@ public class Typeroo extends javax.swing.JFrame {
         
         this.setVisible(true);
         middleDifficultyFrame.setVisible(false);
-        timer.stop();
         score = 0;
         try {
             playOriginalMusic();
@@ -3731,13 +3732,23 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton_submit1ActionPerformed
 
-    private void getHint(){
+    private void getHint() {
         timer.stop();
         if (hints > 0) {
             hints--;
             String currentWord = getCurrentWord(); // Get the current word being displayed
-            String description = getWordDescription(currentWord);
-            JOptionPane.showMessageDialog(null, "Hint: " + description + "\nYour hints are only: " + hints);
+            List<String> definitions = getRandomDefinitions(currentWord);
+
+            if (!definitions.isEmpty()) {
+                StringBuilder hintMessage = new StringBuilder("Hints:");
+                for (String definition : definitions) {
+                    hintMessage.append("\n- ").append(definition);
+                }
+                hintMessage.append("\nYour hints are only: ").append(hints);
+                JOptionPane.showMessageDialog(null, hintMessage.toString());
+            } else {
+                JOptionPane.showMessageDialog(null, "No hints available for this word.");
+            }
         }
         if (hints == 0) {
             JOptionPane.showMessageDialog(null, "All of your hints are used!!!");
@@ -3750,6 +3761,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_hintButton1ActionPerformed
 
     private void homePanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel1MouseClicked
+        timer.stop();
         JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
@@ -3765,7 +3777,6 @@ public class Typeroo extends javax.swing.JFrame {
         }
         this.setVisible(true);
         easyDifficultyFrame.setVisible(false);
-        timer.stop();
         score = 0;
         try {
             playOriginalMusic();
@@ -3807,6 +3818,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_submit2ActionPerformed
 
     private void homePanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel3MouseClicked
+        timer.stop();
         JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
@@ -3823,7 +3835,6 @@ public class Typeroo extends javax.swing.JFrame {
         
         this.setVisible(true);
         hardDifficultyFrame.dispose();
-        timer.stop();
         score = 0;
         try {
             playOriginalMusic();
@@ -4019,19 +4030,40 @@ public class Typeroo extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_menuIcon4MouseClicked
 
+    private Clip currentPlayingClip;
+    private float previousVolumeClip, previousVolumeClip2, previousVolumeClip3, previousVolumeClip4, previousVolumeClip5;
+    
     private void jLabel23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel23MouseClicked
         sliderValue = jSlider1.getValue();
+
         if (isMuted) {
-            // Restore the previous volume
-            setVolume(clip, previousVolume);
+            // Restore the previous volume for all clips
+            currentVolume = previousVolumeClip; // Update currentVolume
+            setVolume(clip, previousVolumeClip);
+            setVolume(clip2, previousVolumeClip2);
+            setVolume(clip3, previousVolumeClip3);
+            setVolume(clip4, previousVolumeClip4);
+            setVolume(clip5, previousVolumeClip5);
             isMuted = false;
+
             // Update the slider value with the previous volume
-            updateSliderValue((int) (previousVolume * 100));
+            updateSliderValue((int) (previousVolumeClip * 100));
         } else {
-            // Store the current volume before muting
-            previousVolume = currentVolume;
+            // Store the current volume for all clips before muting
+            previousVolumeClip = currentVolume;
+            previousVolumeClip2 = getVolume(clip2);
+            previousVolumeClip3 = getVolume(clip3);
+            previousVolumeClip4 = getVolume(clip4);
+            previousVolumeClip5 = getVolume(clip5);
+
+            currentVolume = 0.0f; // Set currentVolume to 0.0f
             setVolume(clip, 0.0f);
+            setVolume(clip2, 0.0f);
+            setVolume(clip3, 0.0f);
+            setVolume(clip4, 0.0f);
+            setVolume(clip5, 0.0f);
             isMuted = true;
+
             // Update jLabel22 text to 0
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -4040,8 +4072,37 @@ public class Typeroo extends javax.swing.JFrame {
                 }
             });
         }
+
+        applyVolumeToAllModes(); // Apply the updated volume to all clips
     }//GEN-LAST:event_jLabel23MouseClicked
 
+    public float getVolume(Clip clip) {
+        if (clip != null) {
+            try {
+                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                return (float) Math.pow(10f, gainControl.getValue() / 20f);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return 0.0f;
+    }
+    
+    private float getPreviousVolume(Clip clip) {
+        if (clip == this.clip) {
+            return previousVolumeClip;
+        } else if (clip == this.clip2) {
+            return previousVolumeClip2;
+        } else if (clip == this.clip3) {
+            return previousVolumeClip3;
+        } else if (clip == this.clip4) {
+            return previousVolumeClip4;
+        } else if (clip == this.clip5) {
+            return previousVolumeClip5;
+        }
+        return 0.0f;
+    }
+    
     private void jLabel67MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel67MouseClicked
         goHome(jLabel67, howToPlay2);
     }//GEN-LAST:event_jLabel67MouseClicked
@@ -4150,15 +4211,21 @@ public class Typeroo extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     
-    private String getWordDescription(String word) {
-        // Extracting description from the word list
+    private List<String> getRandomDefinitions(String word) {
+        List<String> availableDefinitions = new ArrayList<>();
         for (String wordEntry : words) {
             String[] parts = wordEntry.split(" - ");
             if (parts.length == 2 && parts[0].equalsIgnoreCase(word)) {
-                return parts[1];
+                availableDefinitions.add(parts[1]);
             }
         }
-        return "Description not found";
+
+        // Shuffle the list of definitions
+        Collections.shuffle(availableDefinitions);
+
+        // Take up to 5 definitions (or less if there are fewer than 5 available)
+        int numHints = Math.min(5, availableDefinitions.size());
+        return availableDefinitions.subList(0, numHints);
     }
     
     public static String[] readWordsFromJSONFile(String fileName, String difficultyLevel) {
@@ -4177,13 +4244,25 @@ public class Typeroo extends javax.swing.JFrame {
                 jsonString = jsonString.substring(1, jsonString.length() - 1);
             }
 
+            // Split JSON content by commas
             String[] keyValuePairs = jsonString.split(",");
             for (String pair : keyValuePairs) {
                 String[] keyValue = pair.split(":", 2);
                 if (keyValue.length == 2) { // Check if the array has two elements
                     String key = keyValue[0].trim().replaceAll("\"", "");
                     String value = keyValue[1].trim().replaceAll("\"", "");
-                    wordList.add(key.toLowerCase() + " - " + value);
+
+                    // Extract definitions and hints
+                    String[] definitions = value.split(";");
+                    StringBuilder definitionBuilder = new StringBuilder();
+                    for (int i = 0; i < Math.min(5, definitions.length); i++) {
+                        definitionBuilder.append(definitions[i].trim());
+                        if (i < Math.min(5, definitions.length) - 1) {
+                            definitionBuilder.append("; ");
+                        }
+                    }
+
+                    wordList.add(key.toLowerCase() + " - " + definitionBuilder.toString());
                 } else {
                     // Handle the case where the pair does not contain a colon separator
                     System.err.println("Invalid key-value pair: " + pair);
@@ -4196,6 +4275,7 @@ public class Typeroo extends javax.swing.JFrame {
 
         return wordList.toArray(new String[0]);
     }
+
     
     public static void gameOverMusic(){
         try {
