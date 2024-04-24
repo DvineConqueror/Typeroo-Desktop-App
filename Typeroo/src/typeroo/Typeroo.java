@@ -10,7 +10,6 @@ package typeroo;
  */
 import java.awt.BorderLayout;
 import java.awt.Color;
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,19 +20,21 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
+import javax.sound.sampled.*;
+import javax.swing.*;
 import javax.swing.border.Border;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-import javax.sound.sampled.*;
 
 public class Typeroo extends javax.swing.JFrame {
 
+    //Initialization of all the variables
     int score = 1;
     int newScore;
     int easyTime = 20;
@@ -93,7 +94,7 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }
 
-
+    //This is to display the label for the words invisible
     private void displayEmptyWordLabels() {
         String emptyWord = "--Word--";
         String guessText = "Guess";
@@ -113,11 +114,12 @@ public class Typeroo extends javax.swing.JFrame {
     private String getCurrentWord() {
         String[] parts = currentWord.split(" - ");
         if (parts.length > 0) {
-            return parts[0]; // Extract only the word part
+            return parts[0]; // Extract only the word part not the description of the word.
         }
         return null;
     }
 
+    //Obfuscates the word for the challenge
     private String obfuscateWord(String word) {
         StringBuilder newText = new StringBuilder(word);
         int numUnderscores = getNumUnderscores(word);
@@ -131,6 +133,7 @@ public class Typeroo extends javax.swing.JFrame {
         return newText.toString();
     }
 
+    //Used to calculate how many underscores for the word to be obfuscated or hidden
     private int getNumUnderscores(String word) {
         if (isHardMode) {
             return 3;
@@ -141,6 +144,7 @@ public class Typeroo extends javax.swing.JFrame {
         }
     }
 
+    //This is how to calculate the position of the underscore
     private int getValidUnderscorePosition(Random random, String word, StringBuilder newText) {
         int underscorePos;
         do {
@@ -149,12 +153,14 @@ public class Typeroo extends javax.swing.JFrame {
         return underscorePos;
     }
 
+    //This is to display the label for the hidden or obfuscated words
     private void displayWordLabels(String obfuscatedWord) {
         jLabel21.setText(obfuscatedWord);
         jLabel37.setText(obfuscatedWord);
         jLabel42.setText(obfuscatedWord);
     }
 
+    //Calculate the checking of the words
     public void checkWords() {
         String userGuess = getUserGuess().toLowerCase();
         String[] parts = currentWord.split(" - ");
@@ -172,6 +178,7 @@ public class Typeroo extends javax.swing.JFrame {
         displayHUD();
     }
     
+    //Gets the input of the user through the text field
     private String getUserGuess() {
         String guess1 = jTextField_Guess.getText().toLowerCase();
         String guess2 = jTextField_Guess1.getText().toLowerCase();
@@ -183,6 +190,7 @@ public class Typeroo extends javax.swing.JFrame {
                      .orElse("");
     }
 
+    //Calculate if user's answer is correct
     private void handleCorrectGuess() {
         timer.stop();
         JOptionPane.showMessageDialog(null, "Correct!!!");
@@ -193,6 +201,7 @@ public class Typeroo extends javax.swing.JFrame {
         timer.start();
     }
 
+    //This resets the countdown
     private void resetCountdownForDifficulty() {
         if (isEasyMode) {
             countdown = easyTime;
@@ -208,6 +217,7 @@ public class Typeroo extends javax.swing.JFrame {
         newScore = score;
     }
 
+    //Calculates the score for the local leaderboard
     private void updateHighScoreAndLeaderboard() {
         if (newScore > easyHighScore && isEasyMode) {
             easyHighScore = score;
@@ -2006,7 +2016,7 @@ public class Typeroo extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel29Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(nameLeaderboard3, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
-                    .addComponent(nameLeaderboard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
+                    .addComponent(nameLeaderboard, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(nameLeaderboard2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(nameLeaderboard1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(493, 493, 493))
@@ -2187,13 +2197,13 @@ public class Typeroo extends javax.swing.JFrame {
                 .addComponent(backArrow1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel25)
-                .addGap(179, 179, 179)
+                .addGap(216, 216, 216)
                 .addComponent(exitPanel6)
-                .addGap(126, 126, 126))
+                .addGap(89, 89, 89))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2216,9 +2226,7 @@ public class Typeroo extends javax.swing.JFrame {
         leaderBoardDialog.getContentPane().setLayout(leaderBoardDialogLayout);
         leaderBoardDialogLayout.setHorizontalGroup(
             leaderBoardDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(leaderBoardDialogLayout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         leaderBoardDialogLayout.setVerticalGroup(
             leaderBoardDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -2676,6 +2684,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_exitPanel2MouseClicked
 
     private void homePanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel2MouseClicked
+        JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
         }
@@ -2866,6 +2875,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_hintButton1ActionPerformed
 
     private void homePanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel1MouseClicked
+        JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
         }
@@ -2922,6 +2932,7 @@ public class Typeroo extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton_submit2ActionPerformed
 
     private void homePanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_homePanel3MouseClicked
+        JOptionPane.showMessageDialog(null, "Thanks for Playing!");
         if (clip != null) {
             clip.stop();
         }
